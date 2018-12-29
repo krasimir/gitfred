@@ -2,9 +2,9 @@
   "name": "gitfred",
   "version": "0.1.0",
   "description": "In-memory git-like library for managing textual content",
-  "main": "index.js",
+  "main": "gitfred.min.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "babel ./gitfred.js | uglifyjs -c -m -o ./gitfred.min.js"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/krasimir/gitfred/issues"
   },
-  "homepage": "https://github.com/krasimir/gitfred#readme"
+  "homepage": "https://github.com/krasimir/gitfred#readme",
+  "devDependencies": {
+    "@babel/cli": "7.0.0",
+    "@babel/core": "7.0.0",
+    "@babel/preset-env": "7.2.3",
+    "uglify-js": "3.4.9"
+  }
 }
