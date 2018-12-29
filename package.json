@@ -1,0 +1,24 @@
+{
+  "name": "gitfred",
+  "version": "0.1.0",
+  "description": "In-memory git-like library for managing textual content",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krasimir/gitfred.git"
+  },
+  "keywords": [
+    "git",
+    "javascript",
+    "browser"
+  ],
+  "author": "Krasimir Tsonev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/krasimir/gitfred/issues"
+  },
+  "homepage": "https://github.com/krasimir/gitfred#readme"
+}

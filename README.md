@@ -1,2 +1,5 @@
-# gitfred
-In-memory git-like interface for managing content
+![Gitfred](./alfred.png)
+
+# Gitfred
+
+In-memory git-like library for managing textual content
