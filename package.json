@@ -1,10 +1,10 @@
 {
   "name": "gitfred",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "In-memory git-like library for managing textual content",
   "main": "gitfred.min.js",
   "scripts": {
-    "release": "yarn test && babel ./src/gitfred.js | uglifyjs -c -m -o ./src/gitfred.min.js && cat ./node_modules/diff-match-patch/index.js ./src/gitfred.min.js | uglifyjs -c -m -o ./gitfred.min.js",
+    "release": "yarn test && babel ./src/gitfred.js | uglifyjs -c -m -o ./src/gitfred.min.js && cat ./src/vendor/diff-match-patch.js ./src/gitfred.min.js | uglifyjs -c -m -o ./gitfred.min.js",
     "test": "jest",
     "dev": "jest --watch --verbose false"
   },
