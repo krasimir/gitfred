@@ -11,7 +11,6 @@
     let dmpInstance;
     const listeners = [];
     const api = {
-      NOTHING_TO_COMMIT: 'NOTHING_TO_COMMIT',
       ON_SAVE: 's',
       ON_ADD: 'a',
       ON_COMMIT: 'c',
@@ -89,13 +88,11 @@
     }
     api.commit = function (message, meta) {
       if (isEmpty(git.stage)) {
-        return api.NOTHING_TO_COMMIT;
+        throw new Error('NOTHING_TO_COMMIT');
       }
       const hash = createHash();
       const head = this.head();
       const files = head !== null ? findDiff(toText(this.staged()), head) : toText(this.staged());
-
-      if (files === '') return api.NOTHING_TO_COMMIT;
 
       git.commits[hash] = {
         message,
@@ -116,7 +113,16 @@
       }
       return commit;
     }
-    api.checkout = function (hash) {
+    api.checkout = function (hash, force = false) {
+      if (!isEmpty(this.staged()) && !force) {
+        throw new Error('UNSTAGED_FILES');
+      }
+      if (findDiff(toText(this.working()), this.head()) !== '' && !force) {
+        throw new Error('UNSTAGED_FILES');
+      }
+      if (typeof hash === 'undefined') {
+        hash = this.head();
+      }
       git.head = hash;
       git.working = toObj(accumulate(hash));
       notify(api.ON_CHECKOUT);
@@ -141,9 +147,19 @@
       listeners.push(cb);
     }
     api.import = function (state) {
+      if (!state.head || !state.commits) {
+        throw new Error('You should at least specify `head` and `commits`.');
+      }
       git = state;
+      if (!git.i) {
+        git.i = parseInt(git.head.replace('_', ''));
+      }
+      if (!git.stage) git.stage = {};
+      if (!git.working) {
+        git.working = {};
+        this.checkout(this.head(), true);
+      }
     }
-
     api.consoleLogDiff = function (hash) {
       if (!git.commits[hash]) throw new Error(`There is no commit with hash ${ hash }.`);
       if (git.commits[hash].files.indexOf('@@') === -1) return;

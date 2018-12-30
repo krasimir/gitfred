@@ -164,7 +164,7 @@ The head again points to `_1` and our working directory contains also the files 
 * `add(filepath:<string>)`
 * `commit(message:<string>, meta:<any>`)`
 * `show(hash:<string>)`
-* `checkout(hash:<string>)`
+* `checkout(hash:<string>, force:<boolean>)` - `force` is by default `false`
 * `staged():<staging area>`
 * `working():<working directory>`
 * `head():<hash>`
@@ -175,7 +175,6 @@ The head again points to `_1` and our working directory contains also the files 
 
 *Static vars:*
 
-* `git.NOTHING_TO_COMMIT` - returned by `commit` method if there is nothing staged or there is no diff.
 * `git.ON_SAVE` - send to the listener passed to `listen` method
 * `git.ON_ADD` - send to the listener passed to `listen` method
 * `git.ON_COMMIT` - send to the listener passed to `listen` method

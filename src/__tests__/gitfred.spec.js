@@ -85,15 +85,9 @@ describe('Given the gitfred library', () => {
   /* ************************************************************************************** .commit */
 
   describe('when using the `.commit` method', () => {
-    it('should return NOTHING_TO_COMMIT if there is nothing staged', () => {
+    it('should throw NOTHING_TO_COMMIT if there is nothing staged', () => {
       git.save({ filepath: 'script.js', content: 'let a = 10;' });
-      expect(git.commit('foo')).toEqual(git.NOTHING_TO_COMMIT);
-    });
-    it('should return NOTHING_TO_COMMIT if there is no diff between the staged and parent', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;' }).add().commit('foo');
-      git.add();
-      expect(git.staged()).toStrictEqual({ 'script.js': { content: 'let a = 10;' }});
-      expect(git.commit('bar')).toEqual(git.NOTHING_TO_COMMIT);
+      expect(() => git.commit('foo')).toThrowError(new Error('NOTHING_TO_COMMIT'));
     });
     describe('and there are no other commits', () => {
       it(`should create one commit with no parent
@@ -141,13 +135,31 @@ describe('Given the gitfred library', () => {
 
       expect(git.show(hash).meta).toStrictEqual({ meta: true });
     });
+    it('should allow empty commits', () => {
+      git.save({ filepath: 'a', content: 'b' }).add().commit('first');
+      const hash = git.save({ filepath: 'a', content: 'b' }).add().commit('second');
+      git.save({ filepath: 'a', content: 'c' }).add().commit('third');
+      git.checkout(hash);
+      git.save({ filepath: 'a', content: 'd' }).add().commit('fourth');
+
+      expect(Object.keys(git.log()).length).toEqual(4)
+    });
   });
 
   /* ************************************************************************************** .checkout */
 
   describe('when using `.checkout` method', () => {
-    it('should return UNSTAGED_FILES if there are files which are not staged', () => {
-      // TODO
+    it('should throw an error UNSTAGED_FILES if there are files which are not commited', () => {
+      const hash = git.save({ filepath: 'x', content: 'A' }).add().commit('first');
+      git.save({ filepath: 'x', content: 'B' }).add().commit('second');
+      git.save({ filepath: 'x', content: 'C' }).add();
+      expect(() => git.checkout(hash)).toThrowError(new Error('UNSTAGED_FILES'));
+    });
+    it('should throw an error UNSTAGED_FILES if there are files which are not staged', () => {
+      const hash = git.save({ filepath: 'x', content: 'A' }).add().commit('first');
+      git.save({ filepath: 'x', content: 'B' }).add().commit('second');
+      git.save({ filepath: 'x', content: 'C' });
+      expect(() => git.checkout(hash)).toThrowError(new Error('UNSTAGED_FILES'));
     });
     it('should set the working directory to specific commit', () => {
       const hash1 = git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first');
@@ -173,6 +185,22 @@ describe('Given the gitfred library', () => {
       expect(git.checkout(hash4).working()).toStrictEqual({
         x: { content: 'let a = 20;' },
         y: { content: 'console.log("hello world");' }
+      });
+    });
+    describe('when calling `.checkout` with no argument', () => {
+      it('should checkout the latest head', () => {
+        const hash1 = git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first');
+        const hash2 = git.save({ filepath: 'x', content: 'let a = 20;' }).add().commit('second');
+        const hash3 = git.save({ filepath: 'x', content: 'let a = 40;' }).add().commit('third');
+
+        expect(git.head()).toEqual(hash3);
+        git.checkout(hash1);
+        expect(git.head()).toEqual(hash1);
+        expect(git.working()['x'].content).toEqual('let a = 10;');
+        git.checkout(hash3);
+        git.checkout();
+        expect(git.head()).toEqual(hash3);
+        expect(git.working()['x'].content).toEqual('let a = 40;');
       });
     });
   });
@@ -256,6 +284,46 @@ describe('Given the gitfred library', () => {
 
       expect(git.head()).toEqual('_1');
       expect(git.working().x.content).toEqual('let a = 10;');
+    });
+    describe('when missing some of the major props', () => {
+      it('should be robust and polyfill the missing props', () => {
+        git.import({
+          "commits": {
+            "_1": {
+              "message": "first",
+              "parent": null,
+              "files": "{\"x\":{\"content\":\"let a = 10;\"}}"
+            }
+          },
+          "head": "_1"
+        });
+        git.save({ filepath: 'y', content: 'hello' }).add().commit('new commit');
+        expect(git.export()).toStrictEqual({
+          "commits": {
+            "_1": {
+              "message": "first",
+              "parent": null,
+              "files": "{\"x\":{\"content\":\"let a = 10;\"}}"
+            },
+            "_2": {
+              "message": "new commit",
+              "parent": "_1",
+              "files": "@@ -23,9 +23,33 @@\n  = 10;%22%7D\n+,%22y%22:%7B%22content%22:%22hello%22%7D\n %7D\n"
+            }
+          },
+          "head": "_2",
+          "i": 2,
+          "stage": {},
+          "working": {
+            "x": {
+              "content": "let a = 10;"
+            },
+            "y": {
+              "content": "hello"
+            }
+          }
+        })
+      });
     });
   });
 
