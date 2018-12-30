@@ -136,6 +136,11 @@ describe('Given the gitfred library', () => {
         });
       });
     });
+    it('should allow storing meta along side every commit', () => {
+      const hash = git.save({ filepath: 'script.js', content: 'let a = 10;' }).add().commit('com', { meta: true });
+
+      expect(git.show(hash).meta).toStrictEqual({ meta: true });
+    });
   });
 
   /* ************************************************************************************** .checkout */
@@ -173,5 +178,85 @@ describe('Given the gitfred library', () => {
   });
 
   /* ************************************************************************************** .listen */
+  describe('when using the `.listen` method', () => {
+    it('should trigger a callback every time when we change stuff', () => {
+      const spy = jest.fn();
+
+      git.listen(spy);
+      git.checkout(git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first'));
+
+      expect(spy).toBeCalledWith(git.ON_SAVE);
+      expect(spy).toBeCalledWith(git.ON_ADD);
+      expect(spy).toBeCalledWith(git.ON_COMMIT);
+      expect(spy).toBeCalledWith(git.ON_CHECKOUT);
+    });
+  });
+
+  /* ************************************************************************************** .export */
+  describe('when using the `.export` method', () => {
+    it('should dump all the data', () => {
+      git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first');
+      git.save({ filepath: 'y', content: 'boo' }).add('y');
+
+      expect(git.export()).toStrictEqual({
+        "i": 1,
+        "commits": {
+          "_1": {
+            "message": "first",
+            "parent": null,
+            "files": "{\"x\":{\"content\":\"let a = 10;\"}}"
+          }
+        },
+        "stage": {
+          "y": {
+            "content": "boo"
+          }
+        },
+        "working": {
+          "x": {
+            "content": "let a = 10;"
+          },
+          "y": {
+            "content": "boo"
+          }
+        },
+        "head": "_1"
+      });
+    });
+  });
+
+  /* ************************************************************************************** .import */
+
+  describe('when using the `.import` method', () => {
+    it('should import all the data', () => {
+      git.import({
+        "i": 1,
+        "commits": {
+          "_1": {
+            "message": "first",
+            "parent": null,
+            "files": "{\"x\":{\"content\":\"let a = 10;\"}}"
+          }
+        },
+        "stage": {
+          "y": {
+            "content": "boo"
+          }
+        },
+        "working": {
+          "x": {
+            "content": "let a = 10;"
+          },
+          "y": {
+            "content": "boo"
+          }
+        },
+        "head": "_1"
+      });
+
+      expect(git.head()).toEqual('_1');
+      expect(git.working().x.content).toEqual('let a = 10;');
+    });
+  });
 
 });

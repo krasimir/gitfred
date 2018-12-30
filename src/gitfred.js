@@ -9,11 +9,16 @@
 }(typeof self !== 'undefined' ? self : this, function () {  
   return function () {
     let dmpInstance;
+    const listeners = [];
     const api = {
       OK: 'OK',
-      NOTHING_TO_COMMIT: 'NOTHING_TO_COMMIT'
+      NOTHING_TO_COMMIT: 'NOTHING_TO_COMMIT',
+      ON_SAVE: 's',
+      ON_ADD: 'a',
+      ON_COMMIT: 'c',
+      ON_CHECKOUT: 'co'
     }
-    const git = {
+    let git = {
       i: 0, // index used for achieving unique commit hashes
       commits: {},
       stage: {},
@@ -62,11 +67,13 @@
       }
       return dmp.patch_toText(dmp.patch_make(parentContent, newContent, diff));
     }
+    const notify = event => listeners.forEach(cb => cb(event));
 
     api.save = function (change) {
       validateChange(change)
       const { filepath, ...rest } = change;
       git.working[filepath] = Object.assign({}, git.working[filepath], rest);
+      notify(api.ON_SAVE);
       return api;
     }
     api.add = function (filepath) {
@@ -78,9 +85,10 @@
         }
         git.stage[filepath] = clone(git.working[filepath]);
       }
+      notify(api.ON_ADD);
       return api;
     }
-    api.commit = function (message) {
+    api.commit = function (message, meta) {
       if (isEmpty(git.stage)) {
         return api.NOTHING_TO_COMMIT;
       }
@@ -95,13 +103,24 @@
         parent: head,
         files: files
       }
+      if (meta) git.commits[hash].meta = meta;
       git.head = hash;
       git.stage = {};
+      notify(api.ON_COMMIT);
       return hash;
+    }
+    api.show = function (hash) {
+      const commit = api.log()[hash];
+
+      if (!commit) {
+        throw new Error(`There is no commit with hash "${ hash }".`);
+      }
+      return commit;
     }
     api.checkout = function (hash) {
       git.head = hash;
       git.working = toObj(accumulate(hash));
+      notify(api.ON_CHECKOUT);
       return api;
     }
     api.staged = function () {
@@ -118,6 +137,12 @@
     }
     api.export = function () {
       return git;
+    }
+    api.listen = function (cb) {
+      listeners.push(cb);
+    }
+    api.import = function (state) {
+      git = state;
     }
 
     api.consoleLogDiff = function (hash) {
