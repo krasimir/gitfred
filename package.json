@@ -4,7 +4,8 @@
   "description": "In-memory git-like library for managing textual content",
   "main": "gitfred.min.js",
   "scripts": {
-    "release": "yarn test && babel ./src/gitfred.js | uglifyjs -c -m -o ./src/gitfred.min.js && cat ./src/vendor/diff-match-patch.js ./src/gitfred.min.js | uglifyjs -c -m -o ./gitfred.min.js",
+    "bundle": "cat ./src/vendor/diff-match-patch.js ./src/gitfred.min.js | uglifyjs -c -m -o ./gitfred.min.js",
+    "release": "yarn test && babel ./src/gitfred.js | uglifyjs -c -m -o ./src/gitfred.min.js && yarn bundle",
     "test": "jest",
     "dev": "jest --watch --verbose false"
   },

@@ -2180,6 +2180,3 @@ diff_match_patch.patch_obj.prototype.toString = function() {
   }
   return text.join('').replace(/%20/g, ' ');
 };
-
-
-// The following export code was added by @ForbesLindesay
