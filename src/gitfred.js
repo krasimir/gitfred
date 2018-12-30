@@ -61,9 +61,9 @@
       const parentContent = accumulate(parent);
       const diff = dmp.diff_main(parentContent, newContent, true);
 
-      // if (diff.length > 2) {
-      //   dmp.diff_cleanupSemantic(diff);
-      // }
+      if (diff.length > 2) {
+        dmp.diff_cleanupSemantic(diff);
+      }
       return dmp.patch_toText(dmp.patch_make(parentContent, newContent, diff));
     }
     const notify = event => listeners.forEach(cb => cb(event));
