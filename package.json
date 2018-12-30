@@ -1,6 +1,6 @@
 {
   "name": "gitfred",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "In-memory git-like library for managing textual content",
   "main": "gitfred.min.js",
   "scripts": {
@@ -38,7 +38,8 @@
   },
   "babel": {
     "presets": [
-      "@babel/preset-env"
-    ]
+      "@babel/preset-env"      
+    ],
+    "sourceType": "script"
   }
 }
