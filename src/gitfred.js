@@ -65,8 +65,8 @@
 
     api.save = function (change) {
       validateChange(change)
-      const { filepath, content, ...meta } = change;
-      git.working[filepath] = Object.assign({}, git.working[filepath], { c: content }, meta);
+      const { filepath, ...rest } = change;
+      git.working[filepath] = Object.assign({}, git.working[filepath], rest);
       return api;
     }
     api.add = function (filepath) {
