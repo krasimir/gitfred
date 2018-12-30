@@ -17,11 +17,12 @@ or directly using [https://unpkg.com/gitfred](https://unpkg.com/gitfred)
 ```js
 const git = gitfred();
 
-// save a file in the working directory
 git.save({ filepath: "foo.js", content: "hello world" });
+```
 
-/*
-We have no commits yet, but we have our file in the working directory.
+We have no commits yet, but we have our file in the working directory. If we run `git.export()` we'll see the following:
+
+```json
 {
   "commits": {},
   "stage": {},
@@ -32,12 +33,17 @@ We have no commits yet, but we have our file in the working directory.
   },
   "head": null
 }
-*/
+```
 
+Let's stage our file.
+
+```js
 git.add('foo.js');
+```
 
-/*
-No we have our file staged.
+No we have our file staged. The working directory and our staging area contain the same information.
+
+```json
 {
   "commits": {},
   "stage": {
@@ -52,14 +58,17 @@ No we have our file staged.
   },
   "head": null
 }
-*/
+```
 
+Let's make our first commit:
+
+```js
 const hash = git.commit('first commit');
+```
 
-/*
-We just created a new commit with a hash equal to `_1`.
-There is nothing in our staging area and `head` now points to
-our first commit.
+We just created a new commit with a hash equal to `_1`. There is nothing in our staging area and `head` now points to our first commit.
+
+```json
 {
   "commits": {
     "_1": {
@@ -76,18 +85,19 @@ our first commit.
   },
   "head": "_1"
 }
-*/
+```
 
-git
-  .save({ filepath: "foo.js", content: "winter is coming" })
-	.add('foo.js')
-  .commit('second commit');
+We'll continue by editing our file and making another commit.
 
-/*
-We now edited our file and commited the changes. There are
-two commits and `head` points to the second one (with `_2` as a hash).
-Also notice that the second commit does not contain the whole file but
-a patch on top of the first commit.
+```js
+git.save({ filepath: "foo.js", content: "winter is coming" });
+git.add('foo.js');
+git.commit('second commit');
+```
+
+There are two commits now and `head` points to the second one (with a hash of `_2`).
+
+```json
 {
   "commits": {
     "_1": {
@@ -109,13 +119,19 @@ a patch on top of the first commit.
   },
   "head": "_2"
 }
-*/
+```
 
+Also notice that the second commit does not contain the whole file but a patch on top of the first commit.
+
+We may now go back to our first commit:
+
+```js
 git.checkout(hash);
+```
 
-/*
-We checked out to our first commit. The head again points to `_1` and
-our working directory contains also the files from that first commit.
+The head again points to `_1` and our working directory contains also the files from that first commit.
+
+```json
 {
   "i": 2,
   "commits": {
@@ -138,7 +154,6 @@ our working directory contains also the files from that first commit.
   },
   "head": "_1"
 }
-*/
 ```
 
 ## API
