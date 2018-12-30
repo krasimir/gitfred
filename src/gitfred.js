@@ -11,7 +11,6 @@
     let dmpInstance;
     const listeners = [];
     const api = {
-      OK: 'OK',
       NOTHING_TO_COMMIT: 'NOTHING_TO_COMMIT',
       ON_SAVE: 's',
       ON_ADD: 'a',
