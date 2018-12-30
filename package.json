@@ -1,10 +1,10 @@
 {
   "name": "gitfred",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "In-memory git-like library for managing textual content",
   "main": "gitfred.min.js",
   "scripts": {
-    "release": "yarn test && babel ./gitfred.js | uglifyjs -c -m -o ./gitfred.min.js",
+    "release": "yarn test && babel ./src/gitfred.js | uglifyjs -c -m -o ./src/gitfred.min.js && cat ./node_modules/diff-match-patch/index.js ./src/gitfred.min.js | uglifyjs -c -m -o ./gitfred.min.js",
     "test": "jest",
     "dev": "jest --watch --verbose false"
   },
@@ -27,7 +27,18 @@
     "@babel/cli": "7.0.0",
     "@babel/core": "7.2.2",
     "@babel/preset-env": "7.2.3",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "23.6.0",
     "jest": "23.6.0",
+    "regenerator-runtime": "0.13.1",
     "uglify-js": "3.4.9"
+  },
+  "dependencies": {
+    "diff-match-patch": "1.0.4"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
   }
 }
