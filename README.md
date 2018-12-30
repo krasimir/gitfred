@@ -63,7 +63,7 @@ No we have our file staged. The working directory and our staging area contain t
 Let's make our first commit:
 
 ```js
-const hash = git.commit('first commit');
+git.commit('first commit');
 ```
 
 We just created a new commit with a hash equal to `_1`. There is nothing in our staging area and `head` now points to our first commit.
@@ -126,7 +126,7 @@ Also notice that the second commit does not contain the whole file but a patch o
 We may now go back to our first commit:
 
 ```js
-git.checkout(hash);
+git.checkout('_1');
 ```
 
 The head again points to `_1` and our working directory contains also the files from that first commit.
