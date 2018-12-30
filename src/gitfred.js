@@ -10,8 +10,8 @@
   return function () {
     let dmpInstance;
     const api = {
-      OK: 'A',
-      NOTHING_TO_COMMIT: 'B'
+      OK: 'OK',
+      NOTHING_TO_COMMIT: 'NOTHING_TO_COMMIT'
     }
     const git = {
       i: 0, // index used for achieving unique commit hashes
