@@ -158,7 +158,7 @@ The head again points to `_1` and our working directory contains also the files 
 
 ## API
 
-*Methods:"
+*Methods:*
 
 * `save({ filepath:<string>, ...whatever })`
 * `add(filepath:<string>)`
