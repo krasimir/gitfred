@@ -11,7 +11,7 @@
     let dmpInstance;
     const listeners = [];
     const api = {
-      ON_SAVE: 's',
+      ON_CHANGE: 's',
       ON_ADD: 'a',
       ON_COMMIT: 'c',
       ON_CHECKOUT: 'co'
@@ -69,19 +69,21 @@
       validateFile(file)
       const { filepath, ...rest } = file;
       git.working[filepath] = Object.assign({}, git.working[filepath], rest);
-      notify(api.ON_SAVE);
+      notify(api.ON_CHANGE);
       return api;
     }
     api.del = function (file) {
       if (!git.working[file.filepath]) throw new Error(`There is no file with path ${ file.filepath }.`);
       delete git.working[file.filepath];
-      return this;
+      notify(api.ON_CHANGE);
+      return api;
     }
     api.rename = function (oldName, newName) {
       if (!git.working[oldName]) throw new Error(`There is no file with path ${ oldName }.`);
       git.working[newName] = git.working[oldName];
       delete git.working[oldName];
-      return this;
+      notify(api.ON_CHANGE);
+      return api;
     }
     api.add = function (filepath) {
       if (typeof filepath === 'undefined') {

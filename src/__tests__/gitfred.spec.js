@@ -235,7 +235,7 @@ describe('Given the gitfred library', () => {
       git.listen(spy);
       git.checkout(git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first'));
 
-      expect(spy).toBeCalledWith(git.ON_SAVE);
+      expect(spy).toBeCalledWith(git.ON_CHANGE);
       expect(spy).toBeCalledWith(git.ON_ADD);
       expect(spy).toBeCalledWith(git.ON_COMMIT);
       expect(spy).toBeCalledWith(git.ON_CHECKOUT);

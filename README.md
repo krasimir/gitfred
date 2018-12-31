@@ -179,7 +179,7 @@ The head again points to `_1` and our working directory contains also the files 
 
 *Static vars:*
 
-* `git.ON_SAVE` - send to the listener passed to `listen` method
+* `git.ON_CHANGE` - send to the listener passed to `listen` method. Fired when something in the working directory is changed.
 * `git.ON_ADD` - send to the listener passed to `listen` method
 * `git.ON_COMMIT` - send to the listener passed to `listen` method
 * `git.ON_CHECKOUT` - send to the listener passed to `listen` method
