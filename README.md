@@ -161,6 +161,8 @@ The head again points to `_1` and our working directory contains also the files 
 *Methods:*
 
 * `save({ filepath:string, ...whatever })` - saves a file in the working directory
+* `del({ filepath:string })` - deletes a file from the working directory
+* `rename(oldFilepath:string, newFilepath:string)` - renames a file in the working directory
 * `add(filepath:string)` - stage the current chnages
 * `commit(message:string, meta:any):<hash:string>` - `meta` is optional. Commit.
 * `amend(hash:string, message:string, meta:any):<hash:string>` - `meta` is optional. Edit commit message and `meta`.

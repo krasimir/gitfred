@@ -27,10 +27,10 @@
     const createHash = () => '_' + (++git.i);
     const clone = source => JSON.parse(JSON.stringify(source));
     const isEmpty = obj => Object.keys(obj).length === 0 && obj.constructor === Object;
-    const validateChange = change => {
-      if (!change) throw new Error('No `change` provided.');
-      if (!change.filepath) throw new Error('`filepath` is required.');
-      if (typeof change.filepath !== 'string') throw new Error('`filepath` must be a string.');
+    const validateFile = file => {
+      if (!file) throw new Error('No `file` provided.');
+      if (!file.filepath) throw new Error('`filepath` is required.');
+      if (typeof file.filepath !== 'string') throw new Error('`filepath` must be a string.');
     }
     const toText = obj => JSON.stringify(obj);
     const toObj = text => JSON.parse(text);
@@ -65,12 +65,23 @@
     }
     const notify = event => listeners.forEach(cb => cb(event));
 
-    api.save = function (change) {
-      validateChange(change)
-      const { filepath, ...rest } = change;
+    api.save = function (file) {
+      validateFile(file)
+      const { filepath, ...rest } = file;
       git.working[filepath] = Object.assign({}, git.working[filepath], rest);
       notify(api.ON_SAVE);
       return api;
+    }
+    api.del = function (file) {
+      if (!git.working[file.filepath]) throw new Error(`There is no file with path ${ file.filepath }.`);
+      delete git.working[file.filepath];
+      return this;
+    }
+    api.rename = function (oldName, newName) {
+      if (!git.working[oldName]) throw new Error(`There is no file with path ${ oldName }.`);
+      git.working[newName] = git.working[oldName];
+      delete git.working[oldName];
+      return this;
     }
     api.add = function (filepath) {
       if (typeof filepath === 'undefined') {

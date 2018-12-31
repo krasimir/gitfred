@@ -48,6 +48,30 @@ describe('Given the gitfred library', () => {
     });
   });
 
+  /* ************************************************************************************** .delete */
+  describe('when using the `.delete` method', () => {
+    it('should delete a file from the working directory', () => {
+      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
+      expect(isEmpty(git.working())).not.toEqual(true);
+      git.del({ filepath: 'script.js' });
+      expect(isEmpty(git.working())).toEqual(true);
+    });
+  });
+
+  /* ************************************************************************************** .delete */
+  describe('when using the `.rename` method', () => {
+    it('should rename a file from the working directory', () => {
+      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
+      git.rename('script.js', 'foo.js');
+      expect(git.working()).toStrictEqual({
+        "foo.js": {
+          "content": "let a = 10;",
+          "flag": true
+        }
+      })
+    });
+  });
+
   /* ************************************************************************************** .add */
 
   describe('when using the `.add` method', () => {
