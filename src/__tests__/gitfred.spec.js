@@ -322,10 +322,36 @@ describe('Given the gitfred library', () => {
           }
         })
       });
+    });
+    describe('when with pass just a working directory', () => {
+      it('should be robust and polyfill the missing props', () => {
+        git.import({
+          working: {
+            'code.js': {
+              content: 'let a = 10;',
+              editing: false,
+              entry: true
+            }
+          }
+        });
+        expect(git.export()).toStrictEqual({
+          "working": {
+            "code.js": {
+              "content": "let a = 10;",
+              "editing": false,
+              "entry": true
+            }
+          },
+          "head": null,
+          "i": 0,
+          "stage": {},
+          "commits": {}
+        });
+      });
     });  
   });
 
-  /* ************************************************************************************** .import */
+  /* ************************************************************************************** .commitDiffToHTML */
 
   describe('when using `.commitDiffToHTML` method', () => {
     it('should provide a html of the changes', () => {

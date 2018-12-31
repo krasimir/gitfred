@@ -152,18 +152,15 @@
       listeners.push(cb);
     }
     api.import = function (state) {
-      if (!state.head || !state.commits) {
-        throw new Error('You should at least specify `head` and `commits`.');
-      }
       git = state;
-      if (!git.i) {
-        git.i = parseInt(git.head.replace('_', ''));
-      }
+      if (!git.head) git.head = null;
+      if (!git.i) git.i = git.head ? parseInt(git.head.replace('_', '')) : 0;
       if (!git.stage) git.stage = {};
       if (!git.working) {
         git.working = {};
         this.checkout(this.head(), true);
       }
+      if (!git.commits) git.commits = {};
     }
     api.commitDiffToHTML = function (hash) {
       if (!git.commits[hash]) throw new Error(`There is no commit with hash ${ hash }.`);
