@@ -160,18 +160,20 @@ The head again points to `_1` and our working directory contains also the files 
 
 *Methods:*
 
-* `save({ filepath:<string>, ...whatever })`
-* `add(filepath:<string>)`
-* `commit(message:<string>, meta:<any>`)`
-* `show(hash:<string>)`
-* `checkout(hash:<string>, force:<boolean>)` - `force` is by default `false`
-* `staged():<staging area>`
-* `working():<working directory>`
-* `head():<hash>`
-* `log():<all commits>`
-* `export():<all data>`
-* `import(data:<all data>)`
-* `listen(callback:<function>)`
+* `save({ filepath:string, ...whatever })` - saves a file in the working directory
+* `add(filepath:string)` - stage the current chnages
+* `commit(message:string, meta:any):<hash:string>` - `meta` is optional. Commit.
+* `amend(hash:string, message:string, meta:any):<hash:string>` - `meta` is optional. Edit commit message and `meta`.
+* `show(hash:string):<commit:object>` - get a single commit.
+* `checkout(hash:string, force:boolean)` - `force` is by default `false`. Checkout to a specific commit.
+* `staged():<staging area:object>` - get what's staged.
+* `working():<working directory:object>` - get what's in the working directory.
+* `head():<hash:string>` - see the hash of the commit where the head points to.
+* `log():<all commits:object>` - get all the commits.
+* `export():<all data:object>` - get all the data of gitfred
+* `import(data:object)` - restore a gitfred state. Check out what `exports` returns.
+* `listen(callback:function)` - listen for changes in the data. Check the static vars below to see what is your callback fired with.
+* `commitDiffToHTML(hash:string):<html:string>` - in case you need to show what a specific commit is doing.
 
 *Static vars:*
 

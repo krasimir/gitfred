@@ -30,9 +30,7 @@
     const validateChange = change => {
       if (!change) throw new Error('No `change` provided.');
       if (!change.filepath) throw new Error('`filepath` is required.');
-      if (!change.content) throw new Error('`content` is required.');
       if (typeof change.filepath !== 'string') throw new Error('`filepath` must be a string.');
-      if (typeof change.content !== 'string') throw new Error('`content` must be a string.');
     }
     const toText = obj => JSON.stringify(obj);
     const toObj = text => JSON.parse(text);
@@ -105,6 +103,13 @@
       notify(api.ON_COMMIT);
       return hash;
     }
+    api.amend = function (hash, message, meta) {
+      const commit = this.show(hash);
+
+      commit.message = message;
+      if (meta) commit.meta = meta;
+      return hash;
+    }
     api.show = function (hash) {
       const commit = api.log()[hash];
 
@@ -160,20 +165,20 @@
         this.checkout(this.head(), true);
       }
     }
-    api.consoleLogDiff = function (hash) {
+    api.commitDiffToHTML = function (hash) {
       if (!git.commits[hash]) throw new Error(`There is no commit with hash ${ hash }.`);
-      if (git.commits[hash].files.indexOf('@@') === -1) return;
-      createDMP().patch_fromText(git.commits[hash].files).forEach(patch => {
-        if (!patch.diffs) return;
-        const result = patch.diffs.reduce((r, diff) => {
-          if (diff[0] === 1) r.colors.push('\x1b[32m');
-          if (diff[0] === -1) r.colors.push('\x1b[31m');
-          if (diff[0] === 0) r.colors.push('\x1b[0m');
-          r.texts.push(diff[1]);
-          return r;
-        }, { colors: [], texts: [] });
-        console.log.apply(console, [result.colors.join('%s')].concat(result.texts));
-      });
+      if (git.commits[hash].files.indexOf('@@') === -1) return '';
+      return createDMP().patch_fromText(git.commits[hash].files).reduce((result, patch) => {
+        if (!patch.diffs) return result;
+        result += patch.diffs.reduce((result, diff) => {
+          let text = diff[1].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '&para;<br />');
+          if (diff[0] === 1) result += '<ins>' + text + '</ins>';
+          if (diff[0] === -1) result += '<del>' + text + '</del>';
+          if (diff[0] === 0) result += '<span>' + text + '</span>';
+          return result;
+        }, '');
+        return result;
+      }, '');
     }
 
     return api;

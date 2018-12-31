@@ -17,10 +17,8 @@ describe('Given the gitfred library', () => {
     it('should throw an error if the required fields are missing or wrong type', () => {
       expect(() => git.save()).toThrowError();
       expect(() => git.save({})).toThrowError();
-      expect(() => git.save({filepath: 'foo'})).toThrowError();
       expect(() => git.save({filepath: 'foo', content: 'bar'})).not.toThrowError();
       expect(() => git.save({filepath: {}, content: 'bar'})).toThrowError();
-      expect(() => git.save({filepath: 'foo', content: function() {} })).toThrowError();
     });
     it('should store a file in the working directory', () => {
       git.save({ filepath: 'script.js', content: 'let a = 10;' });
@@ -142,7 +140,7 @@ describe('Given the gitfred library', () => {
       git.checkout(hash);
       git.save({ filepath: 'a', content: 'd' }).add().commit('fourth');
 
-      expect(Object.keys(git.log()).length).toEqual(4)
+      expect(Object.keys(git.log()).length).toEqual(4);
     });
   });
 
@@ -254,7 +252,7 @@ describe('Given the gitfred library', () => {
   });
 
   /* ************************************************************************************** .import */
-
+  
   describe('when using the `.import` method', () => {
     it('should import all the data', () => {
       git.import({
@@ -281,7 +279,7 @@ describe('Given the gitfred library', () => {
         },
         "head": "_1"
       });
-
+      
       expect(git.head()).toEqual('_1');
       expect(git.working().x.content).toEqual('let a = 10;');
     });
@@ -324,7 +322,38 @@ describe('Given the gitfred library', () => {
           }
         })
       });
+    });  
+  });
+
+  /* ************************************************************************************** .import */
+
+  describe('when using `.commitDiffToHTML` method', () => {
+    it('should provide a html of the changes', () => {
+      git.save({ filepath: 'a', c: 'hello world' }).add().commit('first');
+      const hash = git.save({ filepath: 'a', c: 'hello mr. Gitfred' }).add().commit('first');
+
+      expect(git.commitDiffToHTML(hash)).toEqual('<span>llo </span><del>worl</del><ins>mr. Gitfre</ins><span>d\"}}</span>');
     });
   });
 
+  /* ************************************************************************************** .amend */
+
+  describe('when using `.amend` method', () => {
+    it('should allow us to change a commit message and meta', () => {
+      const hashA = git.save({ filepath: 'a', c: 'hello world' }).add().commit('first', { flag: true });
+      const hashB = git.amend(hashA, 'first commit', { flag: false, foo: 'bar' });
+
+      expect(git.show(hashA)).toStrictEqual({
+        "message": "first commit",
+        "parent": null,
+        "files": "{\"a\":{\"c\":\"hello world\"}}",
+        "meta": {
+          "flag": false,
+          "foo": "bar"
+        }
+      });
+      expect(hashA).toEqual(hashB);
+    });
+  });
+  
 });
