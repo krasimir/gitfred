@@ -181,3 +181,13 @@ The head again points to `_1` and our working directory contains also the files 
 * `git.ON_ADD` - send to the listener passed to `listen` method
 * `git.ON_COMMIT` - send to the listener passed to `listen` method
 * `git.ON_CHECKOUT` - send to the listener passed to `listen` method
+
+## Scripts
+
+* `yarn release` - building the library
+* `yarn test` - running the tests once
+* `yarn dev` - running the tests in a *watch* mode
+
+## Tests
+
+![tests](./tests.png)
