@@ -4,7 +4,7 @@
 
 In-memory git-like library for managing textual content
 
-[Demo](https://demoit.app/e/ZLXBJMGKxiP)
+[Demo https://demoit.app/e/ZLXBJMGKxiP](https://demoit.app/e/ZLXBJMGKxiP)
 
 ## Installation
 
