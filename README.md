@@ -167,7 +167,7 @@ The head again points to `_1` and our working directory contains also the files 
 
 Saves a file in the working directory. Returns the file.
 
-| | type | Description
+| . | type | Description
 | ------------- |: ------------- :| ------------- :|
 | returns | `<object>` | A file object
 
