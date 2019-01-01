@@ -167,9 +167,10 @@ The head again points to `_1` and our working directory contains also the files 
 
 Saves a file in the working directory. Returns the file.
 
-| . | type | Description
-| ------------- |: ------------- :| ------------- :|
-| returns | `<object>` | A file object
+| . | type | Description |
+| ------------- |: ------------- :| ------------- |
+| returns | `<object>` | A file object |
+
 
 * `save(filepath:<string>, file:<object>)` - saves a file in the working directory. Returns the file.
 * `save(files:<object>)` - saves a file in the working directory. Returns the file.
