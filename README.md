@@ -1,6 +1,8 @@
 ![Gitfred](./alfred.png)
 
-# Gitfred - 24KB In-memory git-like library for managing textual content <!-- omit in toc -->
+# Gitfred <!-- omit in toc -->
+
+> 24KB In-memory git-like library for managing textual content.
 
 [Demo](https://demoit.app/e/ZLXBJMGKxiP)
 
