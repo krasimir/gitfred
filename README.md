@@ -4,9 +4,7 @@
 
 In-memory git-like library for managing textual content
 
-[Demo https://demoit.app/e/ZLXBJMGKxiP](https://demoit.app/e/ZLXBJMGKxiP)
-
-* [Demo](https://unpkg.com/gitfred)
+* [Demo](https://demoit.app/e/ZLXBJMGKxiP)
 * [Installation](#installation)
 * [Usage](#usage)
 * [API](#api)
@@ -169,9 +167,9 @@ The head again points to `_1` and our working directory contains also the files 
 
 Saves a file in the working directory. Returns the file.
 
-| type | Description
---- | --- | ---
-returns | `<object>` | A file object
+| | type | Description
+| ------------- |: ------------- :| ------------- :|
+| returns | `<object>` | A file object
 
 * `save(filepath:<string>, file:<object>)` - saves a file in the working directory. Returns the file.
 * `save(files:<object>)` - saves a file in the working directory. Returns the file.
