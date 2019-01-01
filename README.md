@@ -6,6 +6,13 @@ In-memory git-like library for managing textual content
 
 [Demo https://demoit.app/e/ZLXBJMGKxiP](https://demoit.app/e/ZLXBJMGKxiP)
 
+* [Demo](https://unpkg.com/gitfred)
+* [Installation](#installation)
+* [Usage](#usage)
+* [API](#api)
+* [Scripts](#scripts)
+* [Tests](#tests)
+
 ## Installation
 
 `npm install gitfred` / `yarn add gitfred`
@@ -17,7 +24,7 @@ or directly using [https://unpkg.com/gitfred](https://unpkg.com/gitfred)
 ```js
 const git = gitfred();
 
-git.save({ filepath: "foo.js", content: "hello world" });
+git.save("foo.js", { content: "hello world" });
 ```
 
 We have no commits yet, but we have our file in the working directory. If we run `git.export()` we'll see the following:
@@ -90,7 +97,7 @@ We just created a new commit with a hash equal to `_1`. There is nothing in our 
 We'll continue by editing our file and making another commit.
 
 ```js
-git.save({ filepath: "foo.js", content: "winter is coming" });
+git.save("foo.js", { content: "winter is coming" });
 git.add('foo.js');
 git.commit('second commit');
 ```
@@ -158,9 +165,16 @@ The head again points to `_1` and our working directory contains also the files 
 
 ## API
 
-*Methods:*
+### `save(filepath:<string>, file:<object>)`
 
-* `save({ filepath:string, ...whatever })` - saves a file in the working directory
+Saves a file in the working directory. Returns the file.
+
+| type | Description
+--- | --- | ---
+returns | `<object>` | A file object
+
+* `save(filepath:<string>, file:<object>)` - saves a file in the working directory. Returns the file.
+* `save(files:<object>)` - saves a file in the working directory. Returns the file.
 * `del({ filepath:string })` - deletes a file from the working directory
 * `rename(oldFilepath:string, newFilepath:string)` - renames a file in the working directory
 * `add(filepath:string)` - stage the current chnages
