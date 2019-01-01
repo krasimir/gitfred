@@ -168,13 +168,10 @@ The head again points to `_1` and our working directory contains also the files 
 Saves a file in the working directory. Returns the file.
 
 |               | type          | description  |
-| ------------- |:-------------:| -----:|
+| ------------- |:-------------:| -----|
+| filepath       | `<string>`    | A file path (ex. `script.js`). |
+| file       | `<object>`    | A file object (ex. `{ "content": "let foo = 'bar';" }`). |
 | returns       | `<object>`    | A file object. |
-
-
-| . | type | Description |
-| ------------- |: ------------- :| ------------- |
-| returns | `<object>` | A file object |
 
 
 * `save(filepath:<string>, file:<object>)` - saves a file in the working directory. Returns the file.
