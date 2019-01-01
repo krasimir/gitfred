@@ -167,11 +167,9 @@ The head again points to `_1` and our working directory contains also the files 
 
 Saves a file in the working directory. Returns the file.
 
-| Tables        | Are           | Cool  |
+|               | type          | description  |
 | ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
+| returns       | `<object>`    | A file object. |
 
 
 | . | type | Description |
