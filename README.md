@@ -163,15 +163,24 @@ The head again points to `_1` and our working directory contains also the files 
 
 ## API
 
-### `save(filepath:<string>, file:<object>)`
+### `save(filepath:<string>, file:<object>):<object>`
 
-Saves a file in the working directory. Returns the file.
+Saves a file in the working directory.
 
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | filepath       | `<string>`    | A file path (ex. `script.js`). |
 | file       | `<object>`    | A file object (ex. `{ "content": "let foo = 'bar';" }`). |
 | returns       | `<object>`    | A file object. |
+
+### `save(files:<object>):<object>`
+
+Saves multiple files in the working directory.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| files       | `<object>`    | A map where the keys are filepaths and the values are file objects. (ex. `{ "script.js": { content: "let foo = 'bar';" } }`) |
+| returns       | `<object>`    | It returns the whole working directory which is basically a map with the same structure. |
 
 
 * `save(filepath:<string>, file:<object>)` - saves a file in the working directory. Returns the file.
