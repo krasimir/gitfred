@@ -182,26 +182,46 @@ Saves multiple files in the working directory.
 | files       | `<object>`    | A map where the keys are filepaths and the values are file objects. (ex. `{ "script.js": { content: "let foo = 'bar';" } }`) |
 | returns       | `<object>`    | It returns the whole working directory which is basically a map with the same structure. |
 
+### `saveAll(file:<object>):<object>`
 
-* `save(filepath:<string>, file:<object>)` - saves a file in the working directory. Returns the file.
-* `save(files:<object>)` - saves a file in the working directory. Returns the file.
-* `del({ filepath:string })` - deletes a file from the working directory
-* `rename(oldFilepath:string, newFilepath:string)` - renames a file in the working directory
-* `add(filepath:string)` - stage the current chnages
-* `commit(message:string, meta:any):<hash:string>` - `meta` is optional. Commit.
-* `amend(hash:string, message:string, meta:any):<hash:string>` - `meta` is optional. Edit commit message and `meta`.
-* `show(hash:string):<commit:object>` - get a single commit.
-* `checkout(hash:string, force:boolean)` - `force` is by default `false`. Checkout to a specific commit.
-* `staged():<staging area:object>` - get what's staged.
-* `working():<working directory:object>` - get what's in the working directory.
-* `head():<hash:string>` - see the hash of the commit where the head points to.
-* `log():<all commits:object>` - get all the commits.
-* `export():<all data:object>` - get all the data of gitfred
-* `import(data:object)` - restore a gitfred state. Check out what `exports` returns.
-* `listen(callback:function)` - listen for changes in the data. Check the static vars below to see what is your callback fired with.
-* `commitDiffToHTML(hash:string):<html:string>` - in case you need to show what a specific commit is doing.
+Sometimes we need to update all the files at once with a single property. This method allows that.
 
-*Static vars:*
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| file       | `<object>`    | A file object (ex. `{ "content": "" }`) |
+| returns       | `<object>`    | It returns the working directory. |
+
+If we for example use `{ "content": "" }` all the files in the working directory will have empty `content` property.
+
+### `de(filepath:<string>):<object>`
+
+Deletes a file from the working directory.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| filepath       | `<string>`    | A file path (ex. `script.js`). |
+| returns       | `<object>`    | It returns the working directory. |
+
+### `rename(oldFilepath:<string>, newFilepath:<string>):<object>`
+
+It renames a file or in other words updates a filepath but keeps the file object assign to it.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| oldFilepath       | `<string>`    | A file path (ex. `scriptA.js`). |
+| newFilepath       | `<string>`    | A file path (ex. `scriptB.js`). |
+| returns       | `<object>`    | It returns the working directory. |
+
+### `getFile(filepath:<string>):<object>`
+
+Gets a file behind a specific file path.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| filepath       | `<string>`    | A file path (ex. `script.js`). |
+| returns       | `<object>`    | A file object. |
+
+### Static variables:
 
 * `git.ON_CHANGE` - send to the listener passed to `listen` method. Fired when something in the working directory is changed.
 * `git.ON_ADD` - send to the listener passed to `listen` method

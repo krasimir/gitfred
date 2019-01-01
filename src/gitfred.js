@@ -96,12 +96,14 @@
       if (!git.working[filepath]) throw new Error(`There is no file with path ${ filepath }.`);
       delete git.working[filepath];
       notify(api.ON_CHANGE);
+      return git.working;
     }
     api.rename = function (oldName, newName) {
       if (!git.working[oldName]) throw new Error(`There is no file with path ${ oldName }.`);
       git.working[newName] = git.working[oldName];
       delete git.working[oldName];
       notify(api.ON_CHANGE);
+      return git.working;
     }
     api.getFile = function(filepath) {
       if (!git.working[filepath]) throw new Error(`There is no file with path ${ filepath }.`);
