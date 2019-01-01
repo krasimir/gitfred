@@ -193,7 +193,7 @@ Sometimes we need to update all the files at once with a single property. This m
 
 If we for example use `{ "content": "" }` all the files in the working directory will have empty `content` property.
 
-### `de(filepath:<string>):<object>`
+### `del(filepath:<string>):<object>`
 
 Deletes a file from the working directory.
 
@@ -220,6 +220,46 @@ Gets a file behind a specific file path.
 | ------------- |:-------------:| -----|
 | filepath       | `<string>`    | A file path (ex. `script.js`). |
 | returns       | `<object>`    | A file object. |
+
+### `getFilepath(file:<object>):<string>`
+
+Gets a file path which responds to a specific file object.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| file       | `<object>`    | A file object. |
+| returns       | `<object>`    | A file path (ex. `script.js`) or `undefined` if the file object is not found. |
+
+### `add(filepath:<string>):<object>`
+
+Adds a file to the staging area.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| filepath       | `<string>`    | A file path (ex. `script.js`). |
+| returns       | `<object>`    | It returns the staging area object which is map where the keys are filepaths and the values are file objects |
+
+### `add():<object>`
+
+Like the above one but it adds all the files from the working directory to the staging area.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<object>`    | It returns the staging area object which is map where the keys are filepaths and the values are file objects |
+
+### `commit(message:<string>, meta:<object>):<string>`
+
+Registers a commit, cleans the staging area and sets the head to point to the new commit.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| message       | `<string>`    | The message of the commit |
+| meta       | `<object>`    | Optional. A meta data that could be attached to the commit. (ex. `{ flag: true }`) |
+| returns       | `<string>`    | The hash of the commit which is nothing fancy but `_<number>` |
+
+
+
+
 
 ### Static variables:
 
