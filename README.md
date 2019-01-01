@@ -4,12 +4,25 @@
 
 In-memory git-like library for managing textual content
 
-* [Demo](https://demoit.app/e/ZLXBJMGKxiP)
-* [Installation](#installation)
-* [Usage](#usage)
-* [API](#api)
-* [Scripts](#scripts)
-* [Tests](#tests)
+[Demo](https://demoit.app/e/ZLXBJMGKxiP)
+
+- [Gitfred](#gitfred)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [API](#api)
+    - [`save(filepath:<string>, file:<object>):<object>`](#savefilepathstring-fileobjectobject)
+    - [`save(files:<object>):<object>`](#savefilesobjectobject)
+    - [`saveAll(file:<object>):<object>`](#saveallfileobjectobject)
+    - [`del(filepath:<string>):<object>`](#delfilepathstringobject)
+    - [`rename(oldFilepath:<string>, newFilepath:<string>):<object>`](#renameoldfilepathstring-newfilepathstringobject)
+    - [`getFile(filepath:<string>):<object>`](#getfilefilepathstringobject)
+    - [`getFilepath(file:<object>):<string>`](#getfilepathfileobjectstring)
+    - [`add(filepath:<string>):<object>`](#addfilepathstringobject)
+    - [`add():<object>`](#addobject)
+    - [`commit(message:<string>, meta:<object>):<string>`](#commitmessagestring-metaobjectstring)
+    - [Static variables:](#static-variables)
+  - [Scripts](#scripts)
+  - [Tests](#tests)
 
 ## Installation
 
