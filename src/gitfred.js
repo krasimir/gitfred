@@ -27,10 +27,11 @@
     const createHash = () => '_' + (++git.i);
     const clone = source => JSON.parse(JSON.stringify(source));
     const isEmpty = obj => Object.keys(obj).length === 0 && obj.constructor === Object;
-    const validateFile = file => {
+    const validateFile = (filepath, file) => {
+      if (!filepath) throw new Error('`filepath` is required.');
       if (!file) throw new Error('No `file` provided.');
-      if (!file.filepath) throw new Error('`filepath` is required.');
-      if (typeof file.filepath !== 'string') throw new Error('`filepath` must be a string.');
+      if (typeof filepath !== 'string') throw new Error('`filepath` must be a string.');
+      if (typeof file !== 'object') throw new Error('`file` must be an object.');
     }
     const toText = obj => JSON.stringify(obj);
     const toObj = text => JSON.parse(text);
@@ -56,6 +57,7 @@
     const findDiff = (newContent, parent) => {
       const dmp = createDMP();
       const parentContent = accumulate(parent);
+      
       const diff = dmp.diff_main(parentContent, newContent, true);
 
       if (diff.length > 2) {
@@ -65,25 +67,52 @@
     }
     const notify = event => listeners.forEach(cb => cb(event));
 
-    api.save = function (file) {
-      validateFile(file)
-      const { filepath, ...rest } = file;
-      git.working[filepath] = Object.assign({}, git.working[filepath], rest);
-      notify(api.ON_CHANGE);
-      return api;
+    api.save = function (filepath, file) {
+      if (typeof filepath === 'object' && typeof file === 'undefined') {
+        Object.keys(filepath).forEach(f => {
+          validateFile(f, filepath[f]);
+          git.working[f] = Object.assign({}, git.working[f], filepath[f]);
+        });
+        notify(api.ON_CHANGE);
+        return git.working;
+      } else {
+        validateFile(filepath, file);
+        git.working[filepath] = Object.assign({}, git.working[filepath], file);
+        notify(api.ON_CHANGE);
+        return git.working[filepath];
+      }
     }
-    api.del = function (file) {
-      if (!git.working[file.filepath]) throw new Error(`There is no file with path ${ file.filepath }.`);
-      delete git.working[file.filepath];
+    api.saveAll = function(file) {
+      Object.keys(git.working).forEach(filepath => {
+        git.working[filepath] = Object.assign({}, git.working[filepath], file);
+      });
       notify(api.ON_CHANGE);
-      return api;
+      return git.working;
+    }
+    api.del = function (filepath) {
+      Object.keys(git.working).forEach(key => {
+        if (git.working[key] === filepath) filepath = key;
+      });
+      if (!git.working[filepath]) throw new Error(`There is no file with path ${ filepath }.`);
+      delete git.working[filepath];
+      notify(api.ON_CHANGE);
     }
     api.rename = function (oldName, newName) {
       if (!git.working[oldName]) throw new Error(`There is no file with path ${ oldName }.`);
       git.working[newName] = git.working[oldName];
       delete git.working[oldName];
       notify(api.ON_CHANGE);
-      return api;
+    }
+    api.getFile = function(filepath) {
+      if (!git.working[filepath]) throw new Error(`There is no file with path ${ filepath }.`);
+      return git.working[filepath];
+    }
+    api.getFilepath = function(file) {
+      const filepaths = Object.keys(git.working);
+      
+      for (let i=0; i<filepaths.length; i++) {
+        if (git.working[filepaths[i]] === file) return filepaths[i];
+      }
     }
     api.add = function (filepath) {
       if (typeof filepath === 'undefined') {
@@ -95,7 +124,7 @@
         git.stage[filepath] = clone(git.working[filepath]);
       }
       notify(api.ON_ADD);
-      return api;
+      return git.stage;
     }
     api.commit = function (message, meta) {
       if (isEmpty(git.stage)) {
@@ -121,7 +150,7 @@
 
       commit.message = message;
       if (meta) commit.meta = meta;
-      return hash;
+      return commit;
     }
     api.show = function (hash) {
       const commit = api.log()[hash];
@@ -144,7 +173,7 @@
       git.head = hash;
       git.working = toObj(accumulate(hash));
       notify(api.ON_CHECKOUT);
-      return api;
+      return git.working;
     }
     api.staged = function () {
       return git.stage;

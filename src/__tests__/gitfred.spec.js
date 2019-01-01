@@ -16,32 +16,31 @@ describe('Given the gitfred library', () => {
   describe('when using the `.save` method', () => {
     it('should throw an error if the required fields are missing or wrong type', () => {
       expect(() => git.save()).toThrowError();
-      expect(() => git.save({})).toThrowError();
-      expect(() => git.save({filepath: 'foo', content: 'bar'})).not.toThrowError();
-      expect(() => git.save({filepath: {}, content: 'bar'})).toThrowError();
+      expect(() => git.save({}, { content: 'bar' })).toThrowError();
+      expect(() => git.save('foo', { content: 'bar' })).not.toThrowError();
     });
     it('should store a file in the working directory', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;' });
+      git.save('script.js', { content: 'let a = 10;' });
       expect(git.working()).toStrictEqual({
         'script.js': { content: 'let a = 10;' }
       })
     });
     it('should modify the file if it is already staged', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;' });
-      git.save({ filepath: 'script.js', content: 'let a = 20;' });
+      git.save('script.js', { content: 'let a = 10;' });
+      git.save('script.js', { content: 'let a = 20;' });
       expect(git.working()).toStrictEqual({
         'script.js': { content: 'let a = 20;' }
       });
     });
     it('should append and not replace a file', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
-      git.save({ filepath: 'script.js', content: 'let b = 20;' });
+      git.save('script.js', { content: 'let a = 10;', flag: true });
+      git.save('script.js', { content: 'let b = 20;' });
       expect(git.working()).toStrictEqual({
         'script.js': { content: 'let b = 20;', flag: true }
       });
     });
     it('should allow storing meta data', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
+      git.save('script.js', { content: 'let a = 10;', flag: true });
       expect(git.working()).toStrictEqual({
         'script.js': { content: 'let a = 10;', flag: true }
       });
@@ -49,19 +48,27 @@ describe('Given the gitfred library', () => {
   });
 
   /* ************************************************************************************** .delete */
+
   describe('when using the `.delete` method', () => {
     it('should delete a file from the working directory', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
+      git.save('script.js', { content: 'let a = 10;', flag: true });
       expect(isEmpty(git.working())).not.toEqual(true);
-      git.del({ filepath: 'script.js' });
+      git.del('script.js');
+      expect(isEmpty(git.working())).toEqual(true);
+    });
+    it('should delete a file even if we pass the file directly', () => {
+      git.save('script.js', { content: 'let a = 10;', flag: true });
+      expect(isEmpty(git.working())).not.toEqual(true);
+      git.del(git.working()['script.js']);
       expect(isEmpty(git.working())).toEqual(true);
     });
   });
 
-  /* ************************************************************************************** .delete */
+  /* ************************************************************************************** .rename */
+
   describe('when using the `.rename` method', () => {
     it('should rename a file from the working directory', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
+      git.save('script.js', { content: 'let a = 10;', flag: true });
       git.rename('script.js', 'foo.js');
       expect(git.working()).toStrictEqual({
         "foo.js": {
@@ -72,6 +79,65 @@ describe('Given the gitfred library', () => {
     });
   });
 
+  /* ************************************************************************************** other utility methods */
+
+  describe('when using the `.getFile` method', () => {
+    it('should return a file by provided filename', () => {
+      git.save('script.js', { content: 'let a = 10;', flag: true });
+      git.save('foo.js', { content: 'xxx' });
+      expect(git.getFile('script.js')).toStrictEqual({ content: 'let a = 10;', flag: true });
+    });
+  });
+  describe('when using the `.getFilepath` method', () => {
+    it('should return a filepath by provided file', () => {
+      const file = git.save('script.js', { foo: 'bar' });
+      git.save('foo.js', { content: 'xxx' });
+      expect(git.getFilepath(file)).toEqual('script.js');
+    });
+  });
+  describe('when using the `.saveAll` method', () => {
+    it('should amend all the files in the working directory', () => {
+      git.save('a.js', { foo: 'bar' });
+      git.save('b.js', { bar: 'foo' });
+      git.saveAll({ x: 'y' });
+      git.save('b.js', { x: 'z' });
+
+      expect(git.working()).toStrictEqual({
+        "a.js": {
+          "foo": "bar",
+          "x": "y"
+        },
+        "b.js": {
+          "bar": "foo",
+          "x": "z"
+        }
+      });
+    });
+  });
+  describe('when using the `.batchSave` method', () => {
+    it('should changing multiple files at once', () => {
+      git.save({
+        'a.js': { foo: 'bar' },
+        'b.js': { bar: 'foo' }
+      });
+      git.save({
+        'a.js': { a: 'b' },
+        'b.js': { c: 'd' }
+      });
+
+      expect(git.working()).toStrictEqual({
+        "a.js": {
+          "a": "b",
+          foo: 'bar'
+        },
+        "b.js": {
+          "c": "d",
+          bar: 'foo'
+        }
+      });
+    });
+  });
+
   /* ************************************************************************************** .add */
 
   describe('when using the `.add` method', () => {
@@ -79,23 +145,23 @@ describe('Given the gitfred library', () => {
       expect(() => git.add('foo.js')).toThrowError();
     });
     it('should store a file from the working directory to the staging area', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
+      git.save('script.js', { content: 'let a = 10;', flag: true });
       git.add('script.js');
       expect(git.staged()).toStrictEqual({
         'script.js': { content: 'let a = 10;', flag: true }
       });
     });
     it('the working directory should contain a cloned data', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;', flag: true });
+      git.save('script.js', { content: 'let a = 10;', flag: true });
       git.add('script.js');
-      git.save({ filepath: 'script.js', content: 'let b = 20;' });
+      git.save('script.js', { content: 'let b = 20;' });
       expect(git.staged()).toStrictEqual({
         'script.js': { content: 'let a = 10;', flag: true }
       });
     });
     it('should stage all the files from the working directory if called with no arguments', () => {
-      git.save({ filepath: 'bar.js', content: 'let a = 10;', flag: true });
-      git.save({ filepath: 'foo.js', content: '// comment here\n// and there' });
+      git.save('bar.js', { content: 'let a = 10;', flag: true });
+      git.save('foo.js', { content: '// comment here\n// and there' });
       git.add();
       expect(git.staged()).toStrictEqual({
         'bar.js': { content: 'let a = 10;', flag: true },
@@ -108,16 +174,15 @@ describe('Given the gitfred library', () => {
 
   describe('when using the `.commit` method', () => {
     it('should throw NOTHING_TO_COMMIT if there is nothing staged', () => {
-      git.save({ filepath: 'script.js', content: 'let a = 10;' });
+      git.save('script.js', { content: 'let a = 10;' });
       expect(() => git.commit('foo')).toThrowError(new Error('NOTHING_TO_COMMIT'));
     });
     describe('and there are no other commits', () => {
       it(`should create one commit with no parent
           should point the head to that new commit
           should clear the staged items`, () => {
-        git
-          .save({ filepath: 'script.js', content: 'let a = 10;' })
-          .add();
+        git.save('script.js', { content: 'let a = 10;' });
+        git.add();
 
         expect(isEmpty(git.log())).toEqual(true);
 
@@ -138,8 +203,8 @@ describe('Given the gitfred library', () => {
           should set a parent of the new commit
           should store only the diff between the commits`, () => {
         const dmp = new diff_match_patch();
-        const hash1 = git.save({ filepath: 'foo.js', content: 'let a = 10;' }).add().commit('first');
-        const hash2 = git.save({ filepath: 'foo.js', content: 'let a = 20;' }).add().commit('second');
+        const hash1 = (git.save('foo.js', { content: 'let a = 10;' }), git.add(), git.commit('first'));
+        const hash2 = (git.save('foo.js', { content: 'let a = 20;' }), git.add(), git.commit('second'));
 
         const commit1 = git.log()[hash1];
         const commit2 = git.log()[hash2];
@@ -153,16 +218,16 @@ describe('Given the gitfred library', () => {
       });
     });
     it('should allow storing meta along side every commit', () => {
-      const hash = git.save({ filepath: 'script.js', content: 'let a = 10;' }).add().commit('com', { meta: true });
+      const hash = (git.save('script.js', { content: 'let a = 10;' }), git.add(), git.commit('com', { meta: true }));
 
       expect(git.show(hash).meta).toStrictEqual({ meta: true });
     });
     it('should allow empty commits', () => {
-      git.save({ filepath: 'a', content: 'b' }).add().commit('first');
-      const hash = git.save({ filepath: 'a', content: 'b' }).add().commit('second');
-      git.save({ filepath: 'a', content: 'c' }).add().commit('third');
+      (git.save('a', { content: 'b' }), git.add(), git.commit('first'));
+      const hash = (git.save('a', { content: 'b' }), git.add(), git.commit('second'));
+      (git.save('a', { content: 'c' }), git.add(), git.commit('third'));
       git.checkout(hash);
-      git.save({ filepath: 'a', content: 'd' }).add().commit('fourth');
+      (git.save('a', { content: 'd' }), git.add(), git.commit('fourth'));
 
       expect(Object.keys(git.log()).length).toEqual(4);
     });
@@ -172,21 +237,21 @@ describe('Given the gitfred library', () => {
 
   describe('when using `.checkout` method', () => {
     it('should throw an error UNSTAGED_FILES if there are files which are not commited', () => {
-      const hash = git.save({ filepath: 'x', content: 'A' }).add().commit('first');
-      git.save({ filepath: 'x', content: 'B' }).add().commit('second');
-      git.save({ filepath: 'x', content: 'C' }).add();
+      const hash = (git.save('x', { content: 'A' }), git.add(), git.commit('first'));
+      (git.save('x', { content: 'B' }), git.add(), git.commit('second'));
+      (git.save('x', { content: 'C' }), git.add());
       expect(() => git.checkout(hash)).toThrowError(new Error('UNSTAGED_FILES'));
     });
     it('should throw an error UNSTAGED_FILES if there are files which are not staged', () => {
-      const hash = git.save({ filepath: 'x', content: 'A' }).add().commit('first');
-      git.save({ filepath: 'x', content: 'B' }).add().commit('second');
-      git.save({ filepath: 'x', content: 'C' });
+      const hash = (git.save('x', { content: 'A' }), git.add(), git.commit('first'));
+      (git.save('x', { content: 'B' }), git.add(), git.commit('second'));
+      git.save('x', { content: 'C' });
       expect(() => git.checkout(hash)).toThrowError(new Error('UNSTAGED_FILES'));
     });
     it('should set the working directory to specific commit', () => {
-      const hash1 = git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first');
-      const hash2 = git.save({ filepath: 'x', content: 'let a = 20;' }).add().commit('second');
-      const hash3 = git.save({ filepath: 'x', content: 'let a = 40;' }).add().commit('third');
+      const hash1 = (git.save('x', { content: 'let a = 10;' }), git.add(), git.commit('first'));
+      const hash2 = (git.save('x', { content: 'let a = 20;' }), git.add(), git.commit('second'));
+      const hash3 = (git.save('x', { content: 'let a = 40;' }), git.add(), git.commit('third'));
 
       expect(git.head()).toEqual(hash3);
 
@@ -194,26 +259,26 @@ describe('Given the gitfred library', () => {
 
       expect(git.head()).toEqual(hash2);
       expect(git.working()).toStrictEqual({ 'x': { content: 'let a = 20;' }});
-      expect(git.checkout(hash1).working()).toStrictEqual({ 'x': { content: 'let a = 10;' }});
-      expect(git.checkout(hash3).working()).toStrictEqual({ 'x': { content: 'let a = 40;' }});
+      expect((git.checkout(hash1), git.working())).toStrictEqual({ 'x': { content: 'let a = 10;' }});
+      expect((git.checkout(hash3), git.working())).toStrictEqual({ 'x': { content: 'let a = 40;' }});
 
-      const hash4 = git.checkout(hash2).save({ filepath: 'y', content: 'console.log("hello world");' }).add().commit('fourth');
+      const hash4 = (git.checkout(hash2), git.save('y', { content: 'console.log("hello world");' }), git.add(), git.commit('fourth'));
 
       expect(git.working()).toStrictEqual({
         x: { content: 'let a = 20;' },
         y: { content: 'console.log("hello world");' }
       });
-      expect(git.checkout(hash3).working()).toStrictEqual({ 'x': { content: 'let a = 40;' }});
-      expect(git.checkout(hash4).working()).toStrictEqual({
+      expect((git.checkout(hash3), git.working())).toStrictEqual({ 'x': { content: 'let a = 40;' }});
+      expect((git.checkout(hash4), git.working())).toStrictEqual({
         x: { content: 'let a = 20;' },
         y: { content: 'console.log("hello world");' }
       });
     });
     describe('when calling `.checkout` with no argument', () => {
       it('should checkout the latest head', () => {
-        const hash1 = git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first');
-        const hash2 = git.save({ filepath: 'x', content: 'let a = 20;' }).add().commit('second');
-        const hash3 = git.save({ filepath: 'x', content: 'let a = 40;' }).add().commit('third');
+        const hash1 = (git.save('x', { content: 'let a = 10;' }), git.add(), git.commit('first'));
+        const hash2 = (git.save('x', { content: 'let a = 20;' }), git.add(), git.commit('second'));
+        const hash3 = (git.save('x', { content: 'let a = 40;' }), git.add(), git.commit('third'));
 
         expect(git.head()).toEqual(hash3);
         git.checkout(hash1);
@@ -233,7 +298,7 @@ describe('Given the gitfred library', () => {
       const spy = jest.fn();
 
       git.listen(spy);
-      git.checkout(git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first'));
+      git.checkout((git.save('x', { content: 'let a = 10;' }), git.add(), git.commit('first')));
 
       expect(spy).toBeCalledWith(git.ON_CHANGE);
       expect(spy).toBeCalledWith(git.ON_ADD);
@@ -245,8 +310,8 @@ describe('Given the gitfred library', () => {
   /* ************************************************************************************** .export */
   describe('when using the `.export` method', () => {
     it('should dump all the data', () => {
-      git.save({ filepath: 'x', content: 'let a = 10;' }).add().commit('first');
-      git.save({ filepath: 'y', content: 'boo' }).add('y');
+      (git.save('x', { content: 'let a = 10;' }), git.add(), git.commit('first'));
+      (git.save('y', { content: 'boo' }), git.add('y'));
 
       expect(git.export()).toStrictEqual({
         "i": 1,
@@ -319,7 +384,7 @@ describe('Given the gitfred library', () => {
           },
           "head": "_1"
         });
-        git.save({ filepath: 'y', content: 'hello' }).add().commit('new commit');
+        (git.save('y', { content: 'hello' }), git.add(), git.commit('new commit'));
         expect(git.export()).toStrictEqual({
           "commits": {
             "_1": {
@@ -379,8 +444,8 @@ describe('Given the gitfred library', () => {
 
   describe('when using `.commitDiffToHTML` method', () => {
     it('should provide a html of the changes', () => {
-      git.save({ filepath: 'a', c: 'hello world' }).add().commit('first');
-      const hash = git.save({ filepath: 'a', c: 'hello mr. Gitfred' }).add().commit('first');
+      (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+      const hash = (git.save('a', { c: 'hello mr. Gitfred' }), git.add(), git.commit('first'));
 
       expect(git.commitDiffToHTML(hash)).toEqual('<span>llo </span><del>worl</del><ins>mr. Gitfre</ins><span>d\"}}</span>');
     });
@@ -390,11 +455,11 @@ describe('Given the gitfred library', () => {
 
   describe('when using `.amend` method', () => {
     it('should allow us to change a commit message and meta', () => {
-      const hashA = git.save({ filepath: 'a', c: 'hello world' }).add().commit('first', { flag: true });
-      const hashB = git.amend(hashA, 'first commit', { flag: false, foo: 'bar' });
+      const hashA = (git.save('a', { c: 'hello world' }), git.add(), git.commit('first', { flag: true }));
+      git.amend(hashA, 'better message', { flag: false, foo: 'bar' });
 
       expect(git.show(hashA)).toStrictEqual({
-        "message": "first commit",
+        "message": "better message",
         "parent": null,
         "files": "{\"a\":{\"c\":\"hello world\"}}",
         "meta": {
@@ -402,7 +467,6 @@ describe('Given the gitfred library', () => {
           "foo": "bar"
         }
       });
-      expect(hashA).toEqual(hashB);
     });
   });
   
