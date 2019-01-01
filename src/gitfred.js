@@ -164,7 +164,7 @@
     }
     api.checkout = function (hash, force = false) {
       if (!isEmpty(this.staged()) && !force) {
-        throw new Error('UNSTAGED_FILES');
+        throw new Error('NO_STAGED_FILES');
       }
       if (findDiff(toText(this.working()), this.head()) !== '' && !force) {
         throw new Error('UNSTAGED_FILES');
@@ -205,6 +205,7 @@
         this.checkout(this.head(), true);
       }
       if (!git.commits) git.commits = {};
+      return git.working;
     }
     api.commitDiffToHTML = function (hash) {
       if (!git.commits[hash]) throw new Error(`There is no commit with hash ${ hash }.`);

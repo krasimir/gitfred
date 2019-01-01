@@ -20,9 +20,19 @@ In-memory git-like library for managing textual content
     - [`add(filepath:<string>):<object>`](#addfilepathstringobject)
     - [`add():<object>`](#addobject)
     - [`commit(message:<string>, meta:<object>):<string>`](#commitmessagestring-metaobjectstring)
+    - [`amend(hash:<string>, message:<string>, meta:<object>):<object>`](#amendhashstring-messagestring-metaobjectobject)
+    - [`show(hash:<string>):<object>`](#showhashstringobject)
+    - [`checkout(hash:<string>, force:<boolean>):<object>`](#checkouthashstring-forcebooleanobject)
+    - [`staged():<object>`](#stagedobject)
+    - [`working():<object>`](#workingobject)
+    - [`head():<string>`](#headstring)
+    - [`log():<object>`](#logobject)
+    - [`export():<object>`](#exportobject)
+    - [`import(data:<object>):<object>`](#importdataobjectobject)
+    - [`listen(callback:<function>):<nothing>`](#listencallbackfunctionnothing)
+    - [`commitDiffToHTML(hash:<string>):<string>`](#commitdifftohtmlhashstringstring)
     - [Static variables:](#static-variables)
   - [Scripts](#scripts)
-  - [Tests](#tests)
 
 ## Installation
 
@@ -270,9 +280,100 @@ Registers a commit, cleans the staging area and sets the head to point to the ne
 | meta       | `<object>`    | Optional. A meta data that could be attached to the commit. (ex. `{ flag: true }`) |
 | returns       | `<string>`    | The hash of the commit which is nothing fancy but `_<number>` |
 
+### `amend(hash:<string>, message:<string>, meta:<object>):<object>`
 
+Amends an already existing commit. (only the message and the meta)
 
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| hash       | `<string>`    | Hash of the commit that needs to be amended. |
+| message       | `<string>`    | The message of the commit |
+| meta       | `<object>`    | Optional. A meta data that could be attached to the commit. (ex. `{ flag: true }`) |
+| returns       | `<object>`    | It returns the commit object. |
 
+### `show(hash:<string>):<object>`
+
+Gets a commit.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| hash       | `<string>`    | Hash of a commit. |
+| returns       | `<object>`    | It returns a commit object. |
+
+### `checkout(hash:<string>, force:<boolean>):<object>`
+
+Sets the head to point to a specific commit.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| hash       | `<string>`    | Hash of a commit. |
+| force       | `<boolean>`    | `false` by default. Gitfred throws an error if the staging area is empty or there is unstaged files. By setting this flag to `true` you are skipping those checks. |
+| returns       | `<object>`    | It returns the updated working directory. |
+
+### `staged():<object>`
+
+Returns the staging area object which is map where the keys are filepaths and the values are file objects.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<object>`    | The staging area. |
+
+### `working():<object>`
+
+Returns the working directory object which is map where the keys are filepaths and the values are file objects.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<object>`    | The working directory. |
+
+### `head():<string>`
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<string>`    |Returns a hash of a commit or `null`. |
+
+### `log():<object>`
+
+Get all the commits.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<object>`    | It returns all the commits. |
+
+### `export():<object>`
+
+It dumps all the data of Gitfred.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<object>`    | All the data of Gitfred. |
+
+### `import(data:<object>):<object>`
+
+The opposite of `export` method.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| data       | `<object>`    | Gitfred data. |
+| returns       | `<object>`    | The working directory object. |
+
+### `listen(callback:<function>):<nothing>`
+
+Send a listener function which will be called when the working tree is changed (`ON_CHANGE` event), when the staging area is changed (`ON_ADD` event), when a new commit is made (`ON_COMMIT` event) and when the head is updated (`ON_CHECKOUT` event).
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| callback       | `<function>`    | Fired with either one of the following: `ON_CHANGE`, `ON_ADD`, `ON_COMMIT`, or `ON_CHECKOUT`. |
+| returns       | `<nothing>`    |  |
+
+### `commitDiffToHTML(hash:<string>):<string>`
+
+It returns a HTML string containing the diff in a specific commit
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| hash       | `<string>`    | Hash of a commit. |
+| returns       | `<string>`    | HTML string. |
 
 ### Static variables:
 
@@ -286,7 +387,3 @@ Registers a commit, cleans the staging area and sets the head to point to the ne
 * `yarn release` - building the library
 * `yarn test` - running the tests once
 * `yarn dev` - running the tests in a *watch* mode
-
-## Tests
-
-![tests](./tests.png)
