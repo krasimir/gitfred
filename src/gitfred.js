@@ -19,8 +19,8 @@
     let git = {
       i: 0, // index used for achieving unique commit hashes
       commits: {},
-      stage: {},
-      working: {},
+      stage: [],
+      working: [],
       head: null
     };
     const createDMP = () => dmpInstance ? dmpInstance : (dmpInstance = new diff_match_patch());
@@ -29,7 +29,7 @@
     const isEmpty = obj => Object.keys(obj).length === 0 && obj.constructor === Object;
     const validateFile = (filepath, file) => {
       if (!filepath) throw new Error('`filepath` is required.');
-      if (!file) throw new Error('No `file` provided.');
+      if (!file) throw new Error('`file` object is required.');
       if (typeof filepath !== 'string') throw new Error('`filepath` must be a string.');
       if (typeof file !== 'object') throw new Error('`file` must be an object.');
     }
@@ -66,75 +66,118 @@
       return dmp.patch_toText(dmp.patch_make(parentContent, newContent, diff));
     }
     const notify = event => listeners.forEach(cb => cb(event));
+    const arrayAsStorage = storage => ({
+      length() { return storage.length; },
+      save(key, value) {
+        validateFile(key, value);
+        let i = 0, l = this.length();
+        while(i < l) {
+          if (storage[i][0] === key) return storage[i][1] = Object.assign({}, storage[i][1], value);
+          i++;
+        }
+        storage.push([key, value]);
+      },
+      saveAll(value) {
+        let i = 0, l = this.length();
+        while(i < l) {
+          storage[i][1] = Object.assign({}, storage[i][1], value);
+          i++;
+        }
+      },
+      get(key) {
+        let i = 0, l = this.length();
+        while(i < l) {
+          if (storage[i][0] === key) return storage[i][1];
+          i++;
+        }
+      },
+      del(key) {
+        let i = 0, l = this.length();
+        while(i < l) {
+          if (storage[i][0] === key || storage[i][1] === key) {
+            storage.splice(i, 1);
+            return;
+          }
+          i++;
+        }
+        throw new Error(`There is no file with path ${ key }.`);
+      },
+      getKey(value) {
+        let i = 0, l = this.length();
+        while(i < l) {
+          if (storage[i][1] === value) return storage[i][0];
+          i++;
+        }
+      },
+      rename(keyA, keyB) {
+        let i = 0, l = this.length();
+        while(i < l) {
+          if (storage[i][0] === keyA) return storage[i][0] = keyB;
+          i++;
+        }
+        throw new Error(`There is no file with path ${ key }.`);
+      },
+      clone() {
+        return clone(storage);
+      },
+      replaceStorage(newStorage) {
+        storage = newStorage;
+      }
+    });
+
+    const working = arrayAsStorage(git.working);
+    const stage = arrayAsStorage(git.stage);
 
     api.save = function (filepath, file) {
       if (typeof filepath === 'object' && typeof file === 'undefined') {
-        Object.keys(filepath).forEach(f => {
-          validateFile(f, filepath[f]);
-          git.working[f] = Object.assign({}, git.working[f], filepath[f]);
-        });
+        Object.keys(filepath).forEach(f => working.save(f, filepath[f]));
         notify(api.ON_CHANGE);
-        return git.working;
+        return git;
       } else {
-        validateFile(filepath, file);
-        git.working[filepath] = Object.assign({}, git.working[filepath], file);
+        working.save(filepath, file);
         notify(api.ON_CHANGE);
-        return git.working[filepath];
+        return file;
       }
     }
     api.saveAll = function(file) {
-      Object.keys(git.working).forEach(filepath => {
-        git.working[filepath] = Object.assign({}, git.working[filepath], file);
-      });
+      working.saveAll(file);
       notify(api.ON_CHANGE);
-      return git.working;
+      return git;
     }
     api.del = function (filepath) {
-      Object.keys(git.working).forEach(key => {
-        if (git.working[key] === filepath) filepath = key;
-      });
-      if (!git.working[filepath]) throw new Error(`There is no file with path ${ filepath }.`);
-      delete git.working[filepath];
+      working.del(filepath);
       notify(api.ON_CHANGE);
-      return git.working;
+      return git;
     }
     api.rename = function (oldName, newName) {
-      if (!git.working[oldName]) throw new Error(`There is no file with path ${ oldName }.`);
-      git.working[newName] = git.working[oldName];
-      delete git.working[oldName];
+      working.rename(oldName, newName);
       notify(api.ON_CHANGE);
       return git.working;
     }
-    api.getFile = function(filepath) {
-      if (!git.working[filepath]) throw new Error(`There is no file with path ${ filepath }.`);
-      return git.working[filepath];
+    api.get = function(filepath) {
+      return working.get(filepath);
     }
     api.getFilepath = function(file) {
-      const filepaths = Object.keys(git.working);
-      
-      for (let i=0; i<filepaths.length; i++) {
-        if (git.working[filepaths[i]] === file) return filepaths[i];
-      }
+      return working.getKey(file);
     }
     api.add = function (filepath) {
       if (typeof filepath === 'undefined') {
-        Object.keys(git.working).forEach(this.add);
+        git.stage = working.clone();
+        stage.replaceStorage(git.stage);
       } else {
-        if (!git.working[filepath]) {
-          throw new Error(`There is no '${ filepath }' in the working directory.`);
-        }
-        git.stage[filepath] = clone(git.working[filepath]);
+        const file = working.get(filepath);
+
+        if (!file) throw new Error(`There is no '${ filepath }' in the working directory.`);
+        stage.save(filepath, clone(file));
       }
       notify(api.ON_ADD);
-      return git.stage;
+      return git;
     }
     api.commit = function (message, meta) {
-      if (isEmpty(git.stage)) {
-        throw new Error('NOTHING_TO_COMMIT');
-      }
+      if (stage.length() === 0) throw new Error('NOTHING_TO_COMMIT');
       const hash = createHash();
       const head = this.head();
-      const files = head !== null ? findDiff(toText(this.staged()), head) : toText(this.staged());
+      const files = head !== null ? findDiff(toText(git.stage), head) : toText(git.stage);
 
       git.commits[hash] = {
         message,
@@ -163,25 +206,22 @@
       return commit;
     }
     api.checkout = function (hash, force = false) {
-      if (!isEmpty(this.staged()) && !force) {
+      if (stage.length() === 0 && !force) {
         throw new Error('NO_STAGED_FILES');
       }
-      if (findDiff(toText(this.working()), this.head()) !== '' && !force) {
+      if (findDiff(toText(git.working), this.head()) !== '' && !force) {
         throw new Error('UNSTAGED_FILES');
       }
       if (typeof hash === 'undefined') {
         hash = this.head();
       }
       git.head = hash;
-      git.working = toObj(accumulate(hash));
+      working.replaceStorage(git.working = toObj(accumulate(hash)));
       notify(api.ON_CHECKOUT);
-      return git.working;
+      return git;
     }
     api.staged = function () {
-      return git.stage;
-    }
-    api.working = function () {
-      return git.working;
+      return stage;
     }
     api.head = function () {
       return git.head;
@@ -199,13 +239,15 @@
       git = state;
       if (!git.head) git.head = null;
       if (!git.i) git.i = git.head ? parseInt(git.head.replace('_', '')) : 0;
-      if (!git.stage) git.stage = {};
+      if (!git.stage) git.stage = [];
       if (!git.working) {
-        git.working = {};
+        git.working = [];
         this.checkout(this.head(), true);
       }
       if (!git.commits) git.commits = {};
-      return git.working;
+      working.replaceStorage(git.working);
+      stage.replaceStorage(git.stage);
+      return git;
     }
     api.commitDiffToHTML = function (hash) {
       if (!git.commits[hash]) throw new Error(`There is no commit with hash ${ hash }.`);

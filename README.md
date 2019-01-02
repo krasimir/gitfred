@@ -15,8 +15,8 @@ I've made the library as part of my work on [demoit.app](https://demoit.app/) wh
   - [`save(files:<object>):<object>`](#savefilesobjectobject)
   - [`saveAll(file:<object>):<object>`](#saveallfileobjectobject)
   - [`del(filepath:<string>):<object>`](#delfilepathstringobject)
+  - [`get(filepath:<string>):<object>`](#getfilepathstringobject)
   - [`rename(oldFilepath:<string>, newFilepath:<string>):<object>`](#renameoldfilepathstring-newfilepathstringobject)
-  - [`getFile(filepath:<string>):<object>`](#getfilefilepathstringobject)
   - [`getFilepath(file:<object>):<string>`](#getfilepathfileobjectstring)
   - [`add(filepath:<string>):<object>`](#addfilepathstringobject)
   - [`add():<object>`](#addobject)
@@ -24,8 +24,6 @@ I've made the library as part of my work on [demoit.app](https://demoit.app/) wh
   - [`amend(hash:<string>, message:<string>, meta:<object>):<object>`](#amendhashstring-messagestring-metaobjectobject)
   - [`show(hash:<string>):<object>`](#showhashstringobject)
   - [`checkout(hash:<string>, force:<boolean>):<object>`](#checkouthashstring-forcebooleanobject)
-  - [`staged():<object>`](#stagedobject)
-  - [`working():<object>`](#workingobject)
   - [`head():<string>`](#headstring)
   - [`log():<object>`](#logobject)
   - [`export():<object>`](#exportobject)
@@ -204,7 +202,7 @@ Saves multiple files in the working directory.
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | files       | `<object>`    | A map where the keys are filepaths and the values are file objects. (ex. `{ "script.js": { content: "let foo = 'bar';" } }`) |
-| returns       | `<object>`    | It returns the whole working directory which is basically a map with the same structure. |
+| returns       | `<object>`    | Gitfred instance. |
 
 ### `saveAll(file:<object>):<object>`
 
@@ -213,7 +211,7 @@ Sometimes we need to update all the files at once with a single property. This m
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | file       | `<object>`    | A file object (ex. `{ "content": "" }`) |
-| returns       | `<object>`    | It returns the working directory. |
+| returns       | `<object>`    | Gitfred instance. |
 
 If we for example use `{ "content": "" }` all the files in the working directory will have empty `content` property.
 
@@ -224,7 +222,16 @@ Deletes a file from the working directory.
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | filepath       | `<string>`    | A file path (ex. `script.js`). |
-| returns       | `<object>`    | It returns the working directory. |
+| returns       | `<object>`    | Gitfred instance. |
+
+### `get(filepath:<string>):<object>`
+
+Gets a file (from the working directory) behind a specific file path.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| filepath       | `<string>`    | A file path (ex. `script.js`). |
+| returns       | `<object>`    | A file object or `undefined` if the file is not found. |
 
 ### `rename(oldFilepath:<string>, newFilepath:<string>):<object>`
 
@@ -234,16 +241,7 @@ It renames a file or in other words updates a filepath but keeps the file object
 | ------------- |:-------------:| -----|
 | oldFilepath       | `<string>`    | A file path (ex. `scriptA.js`). |
 | newFilepath       | `<string>`    | A file path (ex. `scriptB.js`). |
-| returns       | `<object>`    | It returns the working directory. |
-
-### `getFile(filepath:<string>):<object>`
-
-Gets a file behind a specific file path.
-
-|               | type          | description  |
-| ------------- |:-------------:| -----|
-| filepath       | `<string>`    | A file path (ex. `script.js`). |
-| returns       | `<object>`    | A file object. |
+| returns       | `<object>`    | Gitfred instance. |
 
 ### `getFilepath(file:<object>):<string>`
 
@@ -261,7 +259,7 @@ Adds a file to the staging area.
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | filepath       | `<string>`    | A file path (ex. `script.js`). |
-| returns       | `<object>`    | It returns the staging area object which is map where the keys are filepaths and the values are file objects |
+| returns       | `<object>`    | Gitfred instance. |
 
 ### `add():<object>`
 
@@ -269,7 +267,7 @@ Like the above one but it adds all the files from the working directory to the s
 
 |               | type          | description  |
 | ------------- |:-------------:| -----|
-| returns       | `<object>`    | It returns the staging area object which is map where the keys are filepaths and the values are file objects |
+| returns       | `<object>`    | Gitfred instance. |
 
 ### `commit(message:<string>, meta:<object>):<string>`
 
@@ -309,23 +307,7 @@ Sets the head to point to a specific commit.
 | ------------- |:-------------:| -----|
 | hash       | `<string>`    | Hash of a commit. |
 | force       | `<boolean>`    | `false` by default. Gitfred throws an error if the staging area is empty or there is unstaged files. By setting this flag to `true` you are skipping those checks. |
-| returns       | `<object>`    | It returns the updated working directory. |
-
-### `staged():<object>`
-
-Returns the staging area object which is map where the keys are filepaths and the values are file objects.
-
-|               | type          | description  |
-| ------------- |:-------------:| -----|
-| returns       | `<object>`    | The staging area. |
-
-### `working():<object>`
-
-Returns the working directory object which is map where the keys are filepaths and the values are file objects.
-
-|               | type          | description  |
-| ------------- |:-------------:| -----|
-| returns       | `<object>`    | The working directory. |
+| returns       | `<object>`    | Gitfred instance. |
 
 ### `head():<string>`
 
