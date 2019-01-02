@@ -16,6 +16,7 @@ I've made the library as part of my work on [demoit.app](https://demoit.app/) wh
   - [`saveAll(file:<object>):<object>`](#saveallfileobjectobject)
   - [`del(filepath:<string>):<object>`](#delfilepathstringobject)
   - [`get(filepath:<string>):<object>`](#getfilepathstringobject)
+  - [`getAll():<array>`](#getallarray)
   - [`rename(oldFilepath:<string>, newFilepath:<string>):<object>`](#renameoldfilepathstring-newfilepathstringobject)
   - [`getFilepath(file:<object>):<string>`](#getfilepathfileobjectstring)
   - [`add(filepath:<string>):<object>`](#addfilepathstringobject)
@@ -44,7 +45,7 @@ or directly using [https://unpkg.com/gitfred](https://unpkg.com/gitfred)
 ```js
 const git = gitfred();
 
-git.save("foo.js", { content: "hello world" });
+git.save("foo.js", { content: "hello winter" });
 ```
 
 We have no commits yet, but we have our file in the working directory. If we run `git.export()` we'll see the following:
@@ -52,12 +53,13 @@ We have no commits yet, but we have our file in the working directory. If we run
 ```json
 {
   "commits": {},
-  "stage": {},
-  "working": {
-    "foo.js": {
-      "content": "hello world"
-    }
-  },
+  "stage": [],
+  "working": [
+    [
+      "foo.js",
+      { "content": "hello winter" }
+    ]
+  ],
   "head": null
 }
 ```
@@ -73,16 +75,18 @@ No we have our file staged. The working directory and our staging area contain t
 ```json
 {
   "commits": {},
-  "stage": {
-    "foo.js": {
-      "content": "hello world"
-    }
-  },
-  "working": {
-    "foo.js": {
-      "content": "hello world"
-    }
-  },
+  "stage": [
+    [
+      "foo.js",
+      { "content": "hello winter" }
+    ]
+  ],
+  "working": [
+    [
+      "foo.js",
+      { "content": "hello winter" }
+    ]
+  ],
   "head": null
 }
 ```
@@ -101,15 +105,16 @@ We just created a new commit with a hash equal to `_1`. There is nothing in our 
     "_1": {
       "message": "first commit",
       "parent": null,
-      "files": "{\"foo.js\":{\"content\":\"hello world\"}}"
+      "files": "[[\"foo.js\",{\"content\":\"hello winter\"}]]"
     }
   },
-  "stage": {},
-  "working": {
-    "foo.js": {
-      "content": "hello world"
-    }
-  },
+  "stage": [],
+  "working": [
+    [
+      "foo.js",
+      { "content": "hello winter" }
+    ]
+  ],
   "head": "_1"
 }
 ```
@@ -130,20 +135,21 @@ There are two commits now and `head` points to the second one (with a hash of `_
     "_1": {
       "message": "first commit",
       "parent": null,
-      "files": "{\"foo.js\":{\"content\":\"hello world\"}}"
+      "files": "[[\"foo.js\",{\"content\":\"hello winter\"}]]"
     },
     "_2": {
       "message": "second commit",
       "parent": "_1",
-      "files": "@@ -19,18 +19,24 @@\n t%22:%22\n-hello world\n+winter is coming\n %22%7D%7D\n"
+      "files": "@@ -20,20 +20,25 @@\n t\":\"\n-hello \n winter\n+ is comming\n \"}]]\n"
     }
   },
-  "stage": {},
-  "working": {
-    "foo.js": {
-      "content": "winter is coming"
-    }
-  },
+  "stage": [],
+  "working": [
+    [
+      "foo.js",
+      { "content": "winter is comming" }
+    ]
+  ],
   "head": "_2"
 }
 ```
@@ -160,25 +166,25 @@ The head again points to `_1` and our working directory contains also the files 
 
 ```json
 {
-  "i": 2,
   "commits": {
     "_1": {
       "message": "first commit",
       "parent": null,
-      "files": "{\"foo.js\":{\"content\":\"hello world\"}}"
+      "files": "[[\"foo.js\",{\"content\":\"hello winter\"}]]"
     },
     "_2": {
       "message": "second commit",
       "parent": "_1",
-      "files": "@@ -19,18 +19,24 @@\n t%22:%22\n-hello world\n+winter is coming\n %22%7D%7D\n"
+      "files": "@@ -20,20 +20,25 @@\n t\":\"\n-hello \n winter\n+ is comming\n \"}]]\n"
     }
   },
-  "stage": {},
-  "working": {
-    "foo.js": {
-      "content": "hello world"
-    }
-  },
+  "stage": [],
+  "working": [
+    [
+      "foo.js",
+      { "content": "hello winter" }
+    ]
+  ],
   "head": "_1"
 }
 ```
@@ -232,6 +238,14 @@ Gets a file (from the working directory) behind a specific file path.
 | ------------- |:-------------:| -----|
 | filepath       | `<string>`    | A file path (ex. `script.js`). |
 | returns       | `<object>`    | A file object or `undefined` if the file is not found. |
+
+### `getAll():<array>`
+
+Gets all the files in the working directory.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<array>`    | An array with all the files. |
 
 ### `rename(oldFilepath:<string>, newFilepath:<string>):<object>`
 

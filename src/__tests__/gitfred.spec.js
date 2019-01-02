@@ -121,6 +121,27 @@ describe('Given the gitfred library', () => {
       expect(git.get('script.js')).toStrictEqual({ content: 'let a = 10;', flag: true });
     });
   });
+  describe('when using the `.getAll` method', () => {
+    it('should return all the files in the working directory', () => {
+      git.save('script.js', { content: 'let a = 10;', flag: true });
+      git.save('foo.js', { content: 'xxx' });
+      expect(git.getAll()).toStrictEqual([
+        [
+          "script.js",
+          {
+            "content": "let a = 10;",
+            "flag": true
+          }
+        ],
+        [
+          "foo.js",
+          {
+            "content": "xxx"
+          }
+        ]
+      ]);
+    });
+  });
   describe('when using the `.getFilepath` method', () => {
     it('should return a filepath by provided file', () => {
       const file = git.save('script.js', { foo: 'bar' });

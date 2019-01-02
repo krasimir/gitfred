@@ -154,8 +154,11 @@
       notify(api.ON_CHANGE);
       return git.working;
     }
-    api.get = function(filepath) {
+    api.get = function (filepath) {
       return working.get(filepath);
+    }
+    api.getAll = function () {
+      return git.working;
     }
     api.getFilepath = function(file) {
       return working.getKey(file);
