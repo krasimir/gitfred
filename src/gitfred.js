@@ -176,7 +176,7 @@
       if (stage.length() === 0) throw new Error('NOTHING_TO_COMMIT');
       const hash = createHash();
       const head = this.head();
-      const files = head !== null ? findDiff(toText(git.stage), head) : toText(git.stage);
+      const files = head !== null ? decodeURI(findDiff(toText(git.stage), head)) : toText(git.stage);
 
       git.commits[hash] = {
         message,

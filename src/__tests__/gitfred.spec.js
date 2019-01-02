@@ -199,6 +199,8 @@ describe('Given the gitfred library', () => {
         expect(git.head()).toEqual(hash2);
         expect(commit2.parent).toEqual(hash1);
 
+        expect(git.export().commits._2.files).toEqual("@@ -28,9 +28,9 @@\n a = \n-1\n+2\n 0;\"}\n")
+
         expect(JSON.parse(dmp.patch_apply(dmp.patch_fromText(commit2.files), commit1.files).shift())).toStrictEqual(
           [['foo.js', { content: 'let a = 20;' }]]
         );
@@ -318,7 +320,7 @@ describe('Given the gitfred library', () => {
           "_2": {
             "message": "second",
             "parent": "_1",
-            "files": "@@ -23,11 +23,35 @@\n a = \n-1\n+2\n 0;%22%7D%5D\n+,%5B%22y%22,%7B%22content%22:%22boo%22%7D%5D\n %5D\n"
+            "files": "@@ -23,11 +23,35 @@\n a = \n-1\n+2\n 0;\"}]\n+,[\"y\",{\"content\":\"boo\"}]\n ]\n"
           }
         },
         "stage": [],
@@ -391,7 +393,7 @@ describe('Given the gitfred library', () => {
             "_2": {
               "message": "new commit",
               "parent": "_1",
-              "files": "@@ -25,9 +25,35 @@\n = 10;%22%7D%5D\n+,%5B%22y%22,%7B%22content%22:%22hello%22%7D%5D\n %5D\n"
+              "files": "@@ -25,9 +25,35 @@\n = 10;\"}]\n+,[\"y\",{\"content\":\"hello\"}]\n ]\n"
             }
           },
           "head": "_2",
