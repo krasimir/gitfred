@@ -176,7 +176,7 @@ describe('Given the gitfred library', () => {
         const hash = git.commit('my first commit');
         
         expect(isEmpty(git.log())).not.toEqual(true);
-        expect(git.staged().length()).toEqual(1);
+        expect(git.staged().length()).toEqual(0);
         expect(git.head()).toEqual(hash);
         expect(git.log()[hash]).toStrictEqual({
           files: '[[\"script.js\",{\"content\":\"let a = 10;\"}]]',
@@ -223,11 +223,10 @@ describe('Given the gitfred library', () => {
   /* ************************************************************************************** .checkout */
 
   describe('when using `.checkout` method', () => {
-    it('should throw an error UNSTAGED_FILES if there are files which are not commited', () => {
+    it('should throw an error UNCOMMITED_CHANGES if there are files which are not commited', () => {
       const hash = (git.save('x', { content: 'A' }), git.add(), git.commit('first'));
-      (git.save('x', { content: 'B' }), git.add(), git.commit('second'));
       (git.save('x', { content: 'C' }), git.add());
-      expect(() => git.checkout(hash)).toThrowError(new Error('UNSTAGED_FILES'));
+      expect(() => git.checkout(hash)).toThrowError(new Error('UNCOMMITED_CHANGES'));
     });
     it('should throw an error UNSTAGED_FILES if there are files which are not staged', () => {
       const hash = (git.save('x', { content: 'A' }), git.add(), git.commit('first'));
@@ -322,7 +321,7 @@ describe('Given the gitfred library', () => {
             "files": "@@ -23,11 +23,35 @@\n a = \n-1\n+2\n 0;%22%7D%5D\n+,%5B%22y%22,%7B%22content%22:%22boo%22%7D%5D\n %5D\n"
           }
         },
-        "stage": {},
+        "stage": [],
         "working": [
           [
             "x",
@@ -397,7 +396,7 @@ describe('Given the gitfred library', () => {
           },
           "head": "_2",
           "i": 2,
-          "stage": {},
+          "stage": [],
           "working": [
             [
               "x",
@@ -470,6 +469,26 @@ describe('Given the gitfred library', () => {
           "foo": "bar"
         }
       });
+    });
+  });
+
+  /* ************************************************************************************** integration */
+
+  describe('when doing the example code', () => {
+    it('should work :)', () => {
+      git.save('foo.js', { content: "hello winter" });
+      git.add('foo.js');
+      git.commit('first commit');
+
+      git.save('foo.js', { content: "winter is comming" });
+      git.add('foo.js');
+      git.commit('second commit');
+
+      git.save('foo.js', { content: "winter is comming!" });
+      git.add('foo.js');
+      git.commit('second commit', { flag: true });
+
+      git.checkout('_1');
     });
   });
   

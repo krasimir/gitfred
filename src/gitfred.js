@@ -162,8 +162,7 @@
     }
     api.add = function (filepath) {
       if (typeof filepath === 'undefined') {
-        git.stage = working.clone();
-        stage.replaceStorage(git.stage);
+        stage.replaceStorage(git.stage = working.clone());
       } else {
         const file = working.get(filepath);
 
@@ -186,7 +185,7 @@
       }
       if (meta) git.commits[hash].meta = meta;
       git.head = hash;
-      git.stage = {};
+      stage.replaceStorage(git.stage = []);
       notify(api.ON_COMMIT);
       return hash;
     }
@@ -206,8 +205,8 @@
       return commit;
     }
     api.checkout = function (hash, force = false) {
-      if (stage.length() === 0 && !force) {
-        throw new Error('NO_STAGED_FILES');
+      if (stage.length() > 0 && !force) {
+        throw new Error('UNCOMMITED_CHANGES');
       }
       if (findDiff(toText(git.working), this.head()) !== '' && !force) {
         throw new Error('UNSTAGED_FILES');
