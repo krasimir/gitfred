@@ -197,6 +197,7 @@
 
       commit.message = message;
       if (meta) commit.meta = meta;
+      notify(api.ON_COMMIT);
       return commit;
     }
     api.show = function (hash) {
