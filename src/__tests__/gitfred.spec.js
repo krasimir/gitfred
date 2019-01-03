@@ -394,6 +394,7 @@ describe('Given the gitfred library', () => {
         (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
         const hash2 = (git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
         (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+        (git.save('a', { c: 'xx2' }), git.add(), git.commit('fourth'));
 
         git.adios(hash2);
 
@@ -407,6 +408,11 @@ describe('Given the gitfred library', () => {
             "message": "third",
             "parent": "_1",
             "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+xxx\n \"}]]\n"
+          },
+          "_4": {
+            "message": "fourth",
+            "parent": "_3",
+            "files": "@@ -7,13 +7,13 @@\n {\"c\":\"xx\n-x\n+2\n \"}]]\n"
           }
         });
       });

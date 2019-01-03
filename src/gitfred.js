@@ -269,10 +269,10 @@
       const derivatives = Object.keys(all).filter(h => all[h].parent === hash);
 
       if (derivatives.length > 0) {
-        Object.keys(all).forEach(h => all[h].files = accumulate(h));
         const newParent = all[hash].parent;
+
         derivatives.forEach(h => {
-          all[h].files = decodeURI(getPatch(all[newParent].files, all[h].files));
+          all[h].files = decodeURI(getPatch(all[newParent].files, accumulate(h)));
           all[h].parent = newParent;
         });
       }
