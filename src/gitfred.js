@@ -41,7 +41,7 @@
       return dmp.patch_apply(dmp.patch_fromText(patch), source).shift()
     }
     const accumulate = (hash, diffs = []) => {
-      const commit = api.show(hash);
+      const commit = api.log()[hash];
 
       if (!commit) {
         throw new Error(`There is no commit with hash "${ hash }".`);
@@ -208,7 +208,11 @@
       return hash;
     }
     api.amend = function (hash, message, meta) {
-      const commit = this.show(hash);
+      const commit = this.log()[hash];
+
+      if (!commit) {
+        throw new Error(`There is no commit with hash "${ hash }".`);
+      }
 
       commit.message = message;
       if (meta) commit.meta = meta;
@@ -216,12 +220,16 @@
       return commit;
     }
     api.show = function (hash) {
-      const commit = api.log()[hash || this.head()];
+      hash = hash || this.head();
+      const commit = api.log()[hash];
 
       if (!commit) {
         throw new Error(`There is no commit with hash "${ hash }".`);
       }
-      return commit;
+      const c = clone(commit);
+
+      c.files = toObj(accumulate(hash));
+      return c;
     }
     api.checkout = function (hash, force = false) {
       if (stage.length() > 0 && !force) {

@@ -366,12 +366,12 @@ describe('Given the gitfred library', () => {
       expect(git.show('_2')).toStrictEqual({
         "message": "second",
         "parent": "_1",
-        "files": "@@ -5,13 +5,13 @@\n \",{\"c\":\"\n-a\n+b\n \"}]]\n"
+        "files": [ [ "a", { "c": "b" } ] ]
       });
       expect(git.show()).toStrictEqual({
         "message": "third",
         "parent": "_2",
-        "files": "@@ -9,9 +9,9 @@\n c\":\"\n-b\n+c\n \"}]]\n"
+        "files": [ [ "a", { "c": "c" } ] ]
       });
     });
   });
@@ -720,7 +720,14 @@ describe('Given the gitfred library', () => {
       expect(git.show(hashA)).toStrictEqual({
         "message": "better message",
         "parent": null,
-        "files": "[[\"a\",{\"c\":\"hello world\"}]]",
+        "files": [
+          [
+            "a",
+            {
+              "c": "hello world"
+            }
+          ]
+        ],
         "meta": {
           "flag": false,
           "foo": "bar"
