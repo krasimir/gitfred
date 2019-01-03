@@ -1,0 +1,40 @@
+{
+  "working": [
+    [
+      "code.js",
+      {
+        "c": "console.log('hello a');"
+      }
+    ]
+  ],
+  "head": "_5",
+  "i": 5,
+  "stage": [],
+  "commits": {
+    "_1": {
+      "message": "test\n\n2",
+      "parent": null,
+      "files": "[[\"code.js\",{\"c\":\"console.log('test');\"}]]"
+    },
+    "_2": {
+      "message": "a second commit\n22x",
+      "parent": "_1",
+      "files": ""
+    },
+    "_3": {
+      "message": "third commit",
+      "parent": "_2",
+      "files": "@@ -28,12 +28,19 @@\n og('\n-test\n+hello world\n ');\"\n"
+    },
+    "_4": {
+      "message": "fourth commit",
+      "parent": "_3",
+      "files": "@@ -35,15 +35,17 @@\n lo world\n+ a\n ');\"}]]\n"
+    },
+    "_5": {
+      "message": "here we go",
+      "parent": "_4",
+      "files": "@@ -34,14 +34,8 @@\n llo \n-world \n a');\n"
+    }
+  }
+}

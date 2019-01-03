@@ -38,10 +38,10 @@
     const applyPatch = (source, patch) => {
       const dmp = createDMP();
 
-      return dmp.patch_apply(dmp.patch_fromText(patch), source).shift()
+      return dmp.patch_apply(dmp.patch_fromText(patch), source).shift();
     }
-    const accumulate = (hash, diffs = []) => {
-      const commit = api.log()[hash];
+    const accumulate = (hash, diffs = [], commits = false) => {
+      const commit = (commits || api.log())[hash];
 
       if (!commit) {
         throw new Error(`There is no commit with hash "${ hash }".`);
@@ -51,7 +51,7 @@
           return applyPatch(result, patch);
         }, commit.files);
       } else {
-        return accumulate(commit.parent, [commit.files].concat(diffs));
+        return accumulate(commit.parent, [commit.files].concat(diffs), commits);
       }
     }
     const getPatch = (parentContent, newContent) => {
@@ -221,13 +221,13 @@
     }
     api.show = function (hash) {
       hash = hash || this.head();
+
       const commit = api.log()[hash];
 
       if (!commit) {
         throw new Error(`There is no commit with hash "${ hash }".`);
       }
       const c = clone(commit);
-
       c.files = toObj(accumulate(hash));
       return c;
     }
@@ -270,31 +270,40 @@
       })(Object.keys(all).find(hash => all[hash].parent === null));
     }
     api.adios = function (hash) {
-      let all = clone(git.commits);
-
-      if (Object.keys(all).length === 0) return;
-      if (this.show(hash).parent === null) throw new Error('FORBIDDEN');
-
-      const derivatives = Object.keys(all).filter(h => all[h].parent === hash);
-
-      if (derivatives.length > 0) {
-        const newParent = all[hash].parent;
-
-        derivatives.forEach(h => {
-          all[h].files = decodeURI(getPatch(all[newParent].files, accumulate(h)));
-          all[h].parent = newParent;
-        });
-      }
+      let all = clone(this.log());
+      let hashes = Object.keys(all);
       
-      if (this.head() === hash) {
-        this.checkout(derivatives.length > 0 ? derivatives.pop() : all[hash].parent);        
-      }
+      if (hashes.length === 0) return;
+      if (this.show(hash).parent === null) throw new Error('FORBIDDEN');
+      
+      const newParent = all[hash].parent;
+
+      hashes.forEach(h => (all[h].files = toObj(accumulate(h))));
 
       const toBeDeleted = all[hash];
-      
       delete all[hash];
+      hashes = Object.keys(all);
+
+      hashes.reduce((compareWith, h, i) => {
+        if (i === 0) {
+          compareWith = all[h].files;
+          all[h].files = toText(all[h].files);
+        } else {
+          const tmp = all[h].files;
+          all[h].files = decodeURI(getPatch(toText(compareWith), toText(all[h].files)));
+          compareWith = tmp;
+          if (all[h].parent === hash) all[h].parent = newParent;
+        }
+        return compareWith;
+      }, null);
+      
+      if (this.head() === hash) {
+        this.checkout(newParent);
+      }
+      
       git.commits = all;
 
+      notify(api.ON_COMMIT);
       return toBeDeleted;
     }
     api.diff = function () {

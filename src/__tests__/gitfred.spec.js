@@ -406,34 +406,53 @@ describe('Given the gitfred library', () => {
     describe('and we want to remove the a middle commit', () => {
       it('should delete the commit set correct parent and diff for the following commits', () => {
         (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
-        const hash2 = (git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
-        (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
-        (git.save('a', { c: 'xx2' }), git.add(), git.commit('fourth'));
+        (git.save('a', { c: 'hello world' }), git.add(), git.commit('second'));
+        const hash2 = (git.save('a', { c: 'hello winter' }), git.add(), git.commit('third'));
+        (git.save('a', { c: 'xxx' }), git.add(), git.commit('fourth'));
+        (git.save('a', { c: 'xx2' }), git.add(), git.commit('fifth'));
 
         git.adios(hash2);
 
-        expect(git.log()).toStrictEqual({
-          "_1": {
-            "message": "first",
-            "parent": null,
-            "files": "[[\"a\",{\"c\":\"hello world\"}]]"
+        expect(git.export()).toStrictEqual({
+          "i": 5,
+          "commits": {
+            "_1": {
+              "message": "first",
+              "parent": null,
+              "files": "[[\"a\",{\"c\":\"hello world\"}]]"
+            },
+            "_2": {
+              "message": "second",
+              "parent": "_1",
+              "files": ""
+            },
+            "_4": {
+              "message": "fourth",
+              "parent": "_2",
+              "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+xxx\n \"}]]\n"
+            },
+            "_5": {
+              "message": "fifth",
+              "parent": "_4",
+              "files": "@@ -7,13 +7,13 @@\n {\"c\":\"xx\n-x\n+2\n \"}]]\n"
+            }
           },
-          "_3": {
-            "message": "third",
-            "parent": "_1",
-            "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+xxx\n \"}]]\n"
-          },
-          "_4": {
-            "message": "fourth",
-            "parent": "_3",
-            "files": "@@ -7,13 +7,13 @@\n {\"c\":\"xx\n-x\n+2\n \"}]]\n"
-          }
+          "stage": [],
+          "working": [
+            [
+              "a",
+              {
+                "c": "xx2"
+              }
+            ]
+          ],
+          "head": "_5"
         });
       });
       describe('and there are more then one derivatives', () => {
         it('should delete the commit set correct parent and diff for the following commits', () => {
           (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
-          const hash2 =(git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+          const hash2 = (git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
           (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
   
           git.checkout(hash2);
@@ -458,7 +477,7 @@ describe('Given the gitfred library', () => {
               "_4": {
                 "message": "fourth",
                 "parent": "_1",
-                "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+nnn\n \"}]]\n"
+                "files": "@@ -9,11 +9,11 @@\n c\":\"\n-xxx\n+nnn\n \"}]]\n"
               }
             },
             "stage": [],
@@ -466,40 +485,40 @@ describe('Given the gitfred library', () => {
               [
                 "a",
                 {
-                  "c": "nnn"
+                  "c": "hello world"
                 }
               ]
             ],
-            "head": "_4"
+            "head": "_1"
           })
         });
       });
       describe('and the head points to the commit that we want to delete', () => {
         it('should checkout the last derivatives in the list', () => {
-          (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+          const hash1 = (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
           const hash2 =(git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
-          const hash3 = (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+          (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
   
           git.checkout(hash2);
           git.adios(hash2);
 
-          expect(git.head()).toEqual(hash3);
-          expect(git.get('a').c).toEqual('xxx');
+          expect(git.head()).toEqual(hash1);
+          expect(git.get('a').c).toEqual('hello world');
         });
         describe('and there are more then one derivatives', () => {
           it('should checkout the last derivatives in the list', () => {
             (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
-            const hash2 =(git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+            const hash2 = (git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
             (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
     
             git.checkout(hash2);
-            const hash4 = (git.save('a', { c: 'nnn' }), git.add(), git.commit('fourth'));
+            (git.save('a', { c: 'nnn' }), git.add(), git.commit('fourth'));
             git.checkout(hash2);
 
             git.adios(hash2);
   
-            expect(git.head()).toEqual(hash4);
-            expect(git.get('a').c).toEqual('nnn');
+            expect(git.head()).toEqual('_1');
+            expect(git.get('a').c).toEqual('hello world');
           });
         });
       });
@@ -759,9 +778,27 @@ describe('Given the gitfred library', () => {
 
       git.save('foo.js', { content: "winter is comming!" });
       git.add('foo.js');
-      git.commit('second commit', { flag: true });
+      git.commit('second commit', { flag: true }); 
 
       git.checkout('_1');
+    });
+    it('should work #2', () => {
+      git.import(require('./fixtures/01.json'));
+
+      git.adios('_3');
+
+      expect(git.show()).toStrictEqual({
+        "message": "here we go",
+        "parent": "_4",
+        "files": [
+          [
+            "code.js",
+            {
+              "c": "console.log('hello a');"
+            }
+          ]
+        ]
+      });
     });
   });
   
