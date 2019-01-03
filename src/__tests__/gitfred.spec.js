@@ -159,20 +159,24 @@ describe('Given the gitfred library', () => {
       git.save('script.js', { foo: '3' }); git.add(); git.commit('third');
       git.checkout(hash);
       git.save('script.js', { foo: '4' }); git.add(); git.commit('fourth');
+
       expect(git.logAsTree()).toStrictEqual({
         "message": "first",
         "parent": null,
         "files": "[[\"script.js\",{\"foo\":\"1\"}]]",
+        "hash": "_1",
         "derivatives": [
           {
             "message": "second",
             "parent": "_1",
             "files": "@@ -19,9 +19,9 @@\n o\":\"\n-1\n+2\n \"}]]\n",
+            "hash": "_2",
             "derivatives": [
               {
                 "message": "third",
                 "parent": "_2",
                 "files": "@@ -19,9 +19,9 @@\n o\":\"\n-2\n+3\n \"}]]\n",
+                "hash": "_3",
                 "derivatives": []
               }
             ]
@@ -181,6 +185,7 @@ describe('Given the gitfred library', () => {
             "message": "fourth",
             "parent": "_1",
             "files": "@@ -19,9 +19,9 @@\n o\":\"\n-1\n+4\n \"}]]\n",
+            "hash": "_4",
             "derivatives": []
           }
         ]

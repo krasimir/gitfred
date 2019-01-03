@@ -255,6 +255,7 @@
         const c = all[hash];
         delete all[hash];
 
+        c.hash = hash;
         c.derivatives = Object.keys(all).filter(h => all[h].parent === hash).map(process);
 
         return c;        
