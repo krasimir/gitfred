@@ -396,10 +396,16 @@ describe('Given the gitfred library', () => {
     });
     describe('and there is only one commit and we delete it', () => {
       it('leave the data with no commits', () => {
-        const hash = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
-        git.adios(hash);
+        const hash1 = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
+        const hash2 = (git.save('a', { c: 'b' }), git.add(), git.commit('second'));
+        const hash3 = (git.save('a', { c: 'c' }), git.add(), git.commit('third'));
+        const hash4 = (git.save('a', { c: 'd' }), git.add(), git.commit('fourth'));
+        git.adios(hash4);
+        git.adios(hash3);
+        git.adios(hash2);
+        git.adios(hash1);
         expect(git.log()).toStrictEqual({});
-        expect(git.getAll()).toStrictEqual([["a", {"c": "a"}]])
+        // expect(git.getAll()).toStrictEqual([["a", {"c": "a"}]])
       });
     });
     describe('and we want to remove the first commit of a series of commits', () => {
@@ -817,7 +823,7 @@ describe('Given the gitfred library', () => {
 
       git.checkout('_1');
     });
-    it('should work #2', () => {
+    it('should work #1', () => {
       git.import(require('./fixtures/01.json'));
 
       git.adios('_3');
@@ -833,6 +839,26 @@ describe('Given the gitfred library', () => {
             }
           ]
         ]
+      });
+    });
+    it('should work #2', () => {
+      git.import(require('./fixtures/02.json'));
+
+      git.adios('_5');
+
+      expect(git.export()).toStrictEqual({
+        "working": [
+          [
+            "code.js",
+            {
+              "c": "console.log('hello a');"
+            }
+          ]
+        ],
+        "head": null,
+        "i": 5,
+        "stage": [],
+        "commits": {}
       });
     });
   });

@@ -297,7 +297,11 @@
       }, null);
       
       if (this.head() === hash) {
-        this.checkout(newParent === null ? Object.keys(all).shift() : newParent);
+        if (isEmpty(all)) {
+          git.head = null;
+        } else {
+          this.checkout(newParent === null ? Object.keys(all).shift() : newParent);
+        }
       }
       
       git.commits = all;
