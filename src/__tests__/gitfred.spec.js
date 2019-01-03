@@ -394,13 +394,48 @@ describe('Given the gitfred library', () => {
         expect(git.log()).toStrictEqual({});
       });
     });
+    describe('and there is only one commit and we delete it', () => {
+      it('leave the data with no commits', () => {
+        const hash = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
+        git.adios(hash);
+        expect(git.log()).toStrictEqual({});
+        expect(git.getAll()).toStrictEqual([["a", {"c": "a"}]])
+      });
+    });
     describe('and we want to remove the first commit of a series of commits', () => {
-      it('should throw an error', () => {
+      it('should delete the commit set correct parent and diff for the following commits', () => {
         const hash = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
         git.save('a', { c: 'b' }); git.add(); git.commit('second');
         git.save('a', { c: 'c' }); git.add(); git.commit('third');
 
-        expect(() => git.adios(hash)).toThrowError(new Error('FORBIDDEN'));
+        git.checkout(hash);
+        git.adios(hash);
+
+        expect(git.export()).toStrictEqual({
+          "i": 3,
+          "commits": {
+            "_2": {
+              "message": "second",
+              "parent": null,
+              "files": "[[\"a\",{\"c\":\"b\"}]]"
+            },
+            "_3": {
+              "message": "third",
+              "parent": "_2",
+              "files": "@@ -9,9 +9,9 @@\n c\":\"\n-b\n+c\n \"}]]\n"
+            }
+          },
+          "stage": [],
+          "working": [
+            [
+              "a",
+              {
+                "c": "b"
+              }
+            ]
+          ],
+          "head": "_2"
+        })
       });
     });
     describe('and we want to remove the a middle commit', () => {

@@ -274,7 +274,6 @@
       let hashes = Object.keys(all);
       
       if (hashes.length === 0) return;
-      if (this.show(hash).parent === null) throw new Error('FORBIDDEN');
       
       const newParent = all[hash].parent;
 
@@ -292,13 +291,13 @@
           const tmp = all[h].files;
           all[h].files = decodeURI(getPatch(toText(compareWith), toText(all[h].files)));
           compareWith = tmp;
-          if (all[h].parent === hash) all[h].parent = newParent;
         }
+        if (all[h].parent === hash) all[h].parent = newParent;
         return compareWith;
       }, null);
       
       if (this.head() === hash) {
-        this.checkout(newParent);
+        this.checkout(newParent === null ? Object.keys(all).shift() : newParent);
       }
       
       git.commits = all;
