@@ -278,11 +278,7 @@
       }
       
       if (this.head() === hash) {
-        if (derivatives.length > 0) {
-          this.checkout(derivatives.pop());
-        } else {
-          this.checkout(all[hash].parent);
-        }
+        this.checkout(derivatives.length > 0 ? derivatives.pop() : all[hash].parent);        
       }
 
       const toBeDeleted = all[hash];
