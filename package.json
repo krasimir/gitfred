@@ -1,6 +1,6 @@
 {
   "name": "gitfred",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "In-memory git-like library for managing textual content",
   "main": "gitfred.min.js",
   "scripts": {

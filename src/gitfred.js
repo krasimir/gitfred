@@ -331,6 +331,15 @@
       if (git.commits[hash].files.indexOf('@@') === -1) return '';
       return diffToHTML(git.commits[hash].files);
     }
+    api.calcStrDiff = function(a, b) {
+      const patch = getPatch(a, b);
+
+      if (patch === '') return null;
+      return {
+        text: patch,
+        html: diffToHTML(patch)
+      }
+    }
 
     return api;
   }

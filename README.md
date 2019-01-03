@@ -35,6 +35,7 @@ I've made the library as part of my work on [demoit.app](https://demoit.app/) wh
   - [`import(data:<object>):<object>`](#importdataobjectobject)
   - [`listen(callback:<function>):<nothing>`](#listencallbackfunctionnothing)
   - [`commitDiffToHTML(hash:<string>):<string>`](#commitdifftohtmlhashstringstring)
+  - [`calcStrDiff(a:<string>, b:string):<object>`](#calcstrdiffastring-bstringobject)
   - [Static variables:](#static-variables)
 - [Scripts](#scripts)
 
@@ -409,6 +410,16 @@ It returns a HTML string containing the diff in a specific commit
 | ------------- |:-------------:| -----|
 | hash       | `<string>`    | Hash of a commit. |
 | returns       | `<string>`    | HTML string. |
+
+### `calcStrDiff(a:<string>, b:string):<object>`
+
+Compares string `a` with string `b`. Returns either `null` or a diff object which contains `text` and `html` properties.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| a       | `<string>`    | Old Text |
+| b       | `<string>`    | New text |
+| returns       | `<string>`    | `null` or object `{ text:<string>, html:<string> }`. |
 
 ### Static variables:
 
