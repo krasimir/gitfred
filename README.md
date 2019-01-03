@@ -19,14 +19,18 @@ I've made the library as part of my work on [demoit.app](https://demoit.app/) wh
   - [`getAll():<array>`](#getallarray)
   - [`rename(oldFilepath:<string>, newFilepath:<string>):<object>`](#renameoldfilepathstring-newfilepathstringobject)
   - [`getFilepath(file:<object>):<string>`](#getfilepathfileobjectstring)
+  - [`exists(filepath:<string>):<boolean>`](#existsfilepathstringboolean)
   - [`add(filepath:<string>):<object>`](#addfilepathstringobject)
   - [`add():<object>`](#addobject)
   - [`commit(message:<string>, meta:<object>):<string>`](#commitmessagestring-metaobjectstring)
   - [`amend(hash:<string>, message:<string>, meta:<object>):<object>`](#amendhashstring-messagestring-metaobjectobject)
   - [`show(hash:<string>):<object>`](#showhashstringobject)
+  - [`diff():<object>`](#diffobject)
+  - [`adios(hash):<object>`](#adioshashobject)
   - [`checkout(hash:<string>, force:<boolean>):<object>`](#checkouthashstring-forcebooleanobject)
   - [`head():<string>`](#headstring)
   - [`log():<object>`](#logobject)
+  - [`logAsTree():<object>`](#logastreeobject)
   - [`export():<object>`](#exportobject)
   - [`import(data:<object>):<object>`](#importdataobjectobject)
   - [`listen(callback:<function>):<nothing>`](#listencallbackfunctionnothing)
@@ -266,6 +270,15 @@ Gets a file path which responds to a specific file object.
 | file       | `<object>`    | A file object. |
 | returns       | `<object>`    | A file path (ex. `script.js`) or `undefined` if the file object is not found. |
 
+### `exists(filepath:<string>):<boolean>`
+
+Checks if the file exists in the current working directory.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| filepath       | `<string>`    | A file path. |
+| returns       | `<boolean>`    | `true` or `false`. |
+
 ### `add(filepath:<string>):<object>`
 
 Adds a file to the staging area.
@@ -306,12 +319,29 @@ Amends an already existing commit. (only the message and the meta)
 
 ### `show(hash:<string>):<object>`
 
-Gets a commit.
+Gets a commit behind a specific hash. If used with no arguments returns the commit where the head points to.
 
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | hash       | `<string>`    | Hash of a commit. |
 | returns       | `<object>`    | It returns a commit object. |
+
+### `diff():<object>`
+
+Shows the diff between the current working directory and the commit which the head points to.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<object>`    | It returns `null` if there's no diff or an object `{ text:<string>, html:<string> }`. |
+
+### `adios(hash):<object>`
+
+You probably wonder why I picked such a method name right? This method deletes a specific commit. There is no such a thing in Git. We have `revert` and `rebase` but that's not really deleting. Gitfred has ridicules simple structure and it is quite easy to implement such functionality. 
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| hash       | `<string>`    | Hash of a commit. |
+| returns       | `<object>`    | It returns the commit which is deleted. |
 
 ### `checkout(hash:<string>, force:<boolean>):<object>`
 
@@ -335,7 +365,15 @@ Get all the commits.
 
 |               | type          | description  |
 | ------------- |:-------------:| -----|
-| returns       | `<object>`    | It returns all the commits. |
+| returns       | `<object>`    | It returns all the commits in a single object where the commit hash is a key and the commit object a value. |
+
+### `logAsTree():<object>`
+
+Get all the commits.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
+| returns       | `<object>`    | It returns all the commits in a tree of objects. |
 
 ### `export():<object>`
 

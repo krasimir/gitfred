@@ -41,7 +41,7 @@
       return dmp.patch_apply(dmp.patch_fromText(patch), source).shift()
     }
     const accumulate = (hash, diffs = []) => {
-      const commit = api.log()[hash];
+      const commit = api.show(hash);
 
       if (!commit) {
         throw new Error(`There is no commit with hash "${ hash }".`);
@@ -54,16 +54,17 @@
         return accumulate(commit.parent, [commit.files].concat(diffs));
       }
     }
-    const findDiff = (newContent, parent) => {
+    const getPatch = (parentContent, newContent) => {
       const dmp = createDMP();
-      const parentContent = accumulate(parent);
-      
       const diff = dmp.diff_main(parentContent, newContent, true);
 
       if (diff.length > 2) {
         dmp.diff_cleanupSemantic(diff);
       }
       return dmp.patch_toText(dmp.patch_make(parentContent, newContent, diff));
+    }
+    const findDiff = (newContent, parent) => {      
+      return decodeURI(getPatch(accumulate(parent), newContent));
     }
     const notify = event => listeners.forEach(cb => cb(event));
     const arrayAsStorage = storage => ({
@@ -124,6 +125,17 @@
         storage = newStorage;
       }
     });
+    const diffToHTML = diff => createDMP().patch_fromText(diff).reduce((result, patch) => {
+      if (!patch.diffs) return result;
+      result += patch.diffs.reduce((result, diff) => {
+        let text = diff[1].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '&para;<br />');
+        if (diff[0] === 1) result += '<ins>' + text + '</ins>';
+        if (diff[0] === -1) result += '<del>' + text + '</del>';
+        if (diff[0] === 0) result += '<span>' + text + '</span>';
+        return result;
+      }, '');
+      return result;
+    }, '');
 
     const working = arrayAsStorage(git.working);
     const stage = arrayAsStorage(git.stage);
@@ -157,6 +169,9 @@
     api.get = function (filepath) {
       return working.get(filepath);
     }
+    api.exists = function (filepath) {
+      return !!working.get(filepath);
+    }
     api.getAll = function () {
       return git.working;
     }
@@ -179,7 +194,7 @@
       if (stage.length() === 0) throw new Error('NOTHING_TO_COMMIT');
       const hash = createHash();
       const head = this.head();
-      const files = head !== null ? decodeURI(findDiff(toText(git.stage), head)) : toText(git.stage);
+      const files = head !== null ? findDiff(toText(git.stage), head) : toText(git.stage);
 
       git.commits[hash] = {
         message,
@@ -201,7 +216,7 @@
       return commit;
     }
     api.show = function (hash) {
-      const commit = api.log()[hash];
+      const commit = api.log()[hash || this.head()];
 
       if (!commit) {
         throw new Error(`There is no commit with hash "${ hash }".`);
@@ -232,6 +247,60 @@
     api.log = function () {
       return git.commits;
     }
+    api.logAsTree = function () {
+      const all = clone(git.commits);
+      return (function process(hash) {
+        if (!hash) return null;
+
+        const c = all[hash];
+        delete all[hash];
+
+        c.derivatives = Object.keys(all).filter(h => all[h].parent === hash).map(process);
+
+        return c;        
+      })(Object.keys(all).find(hash => all[hash].parent === null));
+    }
+    api.adios = function (hash) {
+      let all = clone(git.commits);
+
+      if (Object.keys(all).length === 0) return;
+      if (this.show(hash).parent === null) throw new Error('FORBIDDEN');
+
+      const derivatives = Object.keys(all).filter(h => all[h].parent === hash);
+
+      if (derivatives.length > 0) {
+        Object.keys(all).forEach(h => all[h].files = accumulate(h));
+        const newParent = all[hash].parent;
+        derivatives.forEach(h => {
+          all[h].files = decodeURI(getPatch(all[newParent].files, all[h].files));
+          all[h].parent = newParent;
+        });
+      }
+      
+      if (this.head() === hash) {
+        if (derivatives.length > 0) {
+          this.checkout(derivatives.pop());
+        } else {
+          this.checkout(all[hash].parent);
+        }
+      }
+
+      const toBeDeleted = all[hash];
+      
+      delete all[hash];
+      git.commits = all;
+
+      return toBeDeleted;
+    }
+    api.diff = function () {
+      const diff = findDiff(toText(git.working), this.head());
+
+      if (diff === '') return null;
+      return {
+        text: diff,
+        html: diffToHTML(diff)
+      }
+    }
     api.export = function () {
       return git;
     }
@@ -255,17 +324,7 @@
     api.commitDiffToHTML = function (hash) {
       if (!git.commits[hash]) throw new Error(`There is no commit with hash ${ hash }.`);
       if (git.commits[hash].files.indexOf('@@') === -1) return '';
-      return createDMP().patch_fromText(git.commits[hash].files).reduce((result, patch) => {
-        if (!patch.diffs) return result;
-        result += patch.diffs.reduce((result, diff) => {
-          let text = diff[1].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '&para;<br />');
-          if (diff[0] === 1) result += '<ins>' + text + '</ins>';
-          if (diff[0] === -1) result += '<del>' + text + '</del>';
-          if (diff[0] === 0) result += '<span>' + text + '</span>';
-          return result;
-        }, '');
-        return result;
-      }, '');
+      return diffToHTML(git.commits[hash].files);
     }
 
     return api;

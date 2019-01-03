@@ -128,16 +128,11 @@ describe('Given the gitfred library', () => {
       expect(git.getAll()).toStrictEqual([
         [
           "script.js",
-          {
-            "content": "let a = 10;",
-            "flag": true
-          }
+          { "content": "let a = 10;", "flag": true }
         ],
         [
           "foo.js",
-          {
-            "content": "xxx"
-          }
+          { "content": "xxx" }
         ]
       ]);
     });
@@ -147,6 +142,49 @@ describe('Given the gitfred library', () => {
       const file = git.save('script.js', { foo: 'bar' });
       git.save('foo.js', { content: 'xxx' });
       expect(git.getFilepath(file)).toEqual('script.js');
+    });
+  });
+  describe('when using the `.exists` method', () => {
+    it('should return a boolean indicating if the file exists or not', () => {
+      git.save('script.js', { foo: 'bar' });
+      expect(git.exists('foo.js')).toEqual(false);
+      expect(git.exists('script.js')).toEqual(true);
+    });
+  });
+  describe('when using the `.logAsTree` method', () => {
+    it('should return a list of the commits but in a tree format', () => {
+      expect(git.logAsTree()).toEqual(null);
+      const hash = (git.save('script.js', { foo: '1' }), git.add(), git.commit('first'));
+      git.save('script.js', { foo: '2' }); git.add(); git.commit('second');
+      git.save('script.js', { foo: '3' }); git.add(); git.commit('third');
+      git.checkout(hash);
+      git.save('script.js', { foo: '4' }); git.add(); git.commit('fourth');
+      expect(git.logAsTree()).toStrictEqual({
+        "message": "first",
+        "parent": null,
+        "files": "[[\"script.js\",{\"foo\":\"1\"}]]",
+        "derivatives": [
+          {
+            "message": "second",
+            "parent": "_1",
+            "files": "@@ -19,9 +19,9 @@\n o\":\"\n-1\n+2\n \"}]]\n",
+            "derivatives": [
+              {
+                "message": "third",
+                "parent": "_2",
+                "files": "@@ -19,9 +19,9 @@\n o\":\"\n-2\n+3\n \"}]]\n",
+                "derivatives": []
+              }
+            ]
+          },
+          {
+            "message": "fourth",
+            "parent": "_1",
+            "files": "@@ -19,9 +19,9 @@\n o\":\"\n-1\n+4\n \"}]]\n",
+            "derivatives": []
+          }
+        ]
+      })
     });
   });
 
@@ -293,6 +331,191 @@ describe('Given the gitfred library', () => {
         git.checkout();
         expect(git.head()).toEqual(hash3);
         expect(git.get('x').content).toEqual('let a = 40;');
+      });
+    });
+  });
+
+  /* ************************************************************************************** .diff */
+
+  describe('when using the `.diff` method', () => {
+    it('should return the diff between the working directory and the commit which the head points to', () => {
+      git.save('a', { c: 'foo' }); git.add(); git.commit('first');
+      expect(git.diff()).toEqual(null);
+      git.save('a', { c: 'foo bar' });
+
+      expect(git.diff()).toStrictEqual({
+        "text": "@@ -8,12 +8,16 @@\n \"c\":\"foo\n+ bar\n \"}]]\n",
+        "html": "<span>\"c\":\"foo</span><ins> bar</ins><span>\"}]]</span>"
+      });
+    });
+  });
+
+  /* ************************************************************************************** .show */
+
+  describe('when using the `.show` method', () => {
+    it('should return a specific commit or if used with no arguments the commit which the head points to', () => {
+      git.save('a', { c: 'a' }); git.add(); git.commit('first');
+      git.save('a', { c: 'b' }); git.add(); git.commit('second');
+      git.save('a', { c: 'c' }); git.add(); git.commit('third');
+      
+      expect(git.show('_2')).toStrictEqual({
+        "message": "second",
+        "parent": "_1",
+        "files": "@@ -5,13 +5,13 @@\n \",{\"c\":\"\n-a\n+b\n \"}]]\n"
+      });
+      expect(git.show()).toStrictEqual({
+        "message": "third",
+        "parent": "_2",
+        "files": "@@ -9,9 +9,9 @@\n c\":\"\n-b\n+c\n \"}]]\n"
+      });
+    });
+  });
+
+  /* ************************************************************************************** .adios */
+
+  describe('when using the `.adios` method', () => {
+    describe('and there are no commits', () => {
+      it('should do nothing', () => {
+        git.adios('xxx');
+        expect(git.log()).toStrictEqual({});
+      });
+    });
+    describe('and we want to remove the first commit of a series of commits', () => {
+      it('should throw an error', () => {
+        const hash = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
+        git.save('a', { c: 'b' }); git.add(); git.commit('second');
+        git.save('a', { c: 'c' }); git.add(); git.commit('third');
+
+        expect(() => git.adios(hash)).toThrowError(new Error('FORBIDDEN'));
+      });
+    });
+    describe('and we want to remove the a middle commit', () => {
+      it('should delete the commit set correct parent and diff for the following commits', () => {
+        (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+        const hash2 = (git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+        (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+
+        git.adios(hash2);
+
+        expect(git.log()).toStrictEqual({
+          "_1": {
+            "message": "first",
+            "parent": null,
+            "files": "[[\"a\",{\"c\":\"hello world\"}]]"
+          },
+          "_3": {
+            "message": "third",
+            "parent": "_1",
+            "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+xxx\n \"}]]\n"
+          }
+        });
+      });
+      describe('and there are more then one derivatives', () => {
+        it('should delete the commit set correct parent and diff for the following commits', () => {
+          (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+          const hash2 =(git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+          (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+  
+          git.checkout(hash2);
+          (git.save('a', { c: 'nnn' }), git.add(), git.commit('fourth'));
+          git.checkout(hash2);
+
+          git.adios(hash2);
+
+          expect(git.export()).toStrictEqual({
+            "i": 4,
+            "commits": {
+              "_1": {
+                "message": "first",
+                "parent": null,
+                "files": "[[\"a\",{\"c\":\"hello world\"}]]"
+              },
+              "_3": {
+                "message": "third",
+                "parent": "_1",
+                "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+xxx\n \"}]]\n"
+              },
+              "_4": {
+                "message": "fourth",
+                "parent": "_1",
+                "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+nnn\n \"}]]\n"
+              }
+            },
+            "stage": [],
+            "working": [
+              [
+                "a",
+                {
+                  "c": "nnn"
+                }
+              ]
+            ],
+            "head": "_4"
+          })
+        });
+      });
+      describe('and the head points to the commit that we want to delete', () => {
+        it('should checkout the last derivatives in the list', () => {
+          (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+          const hash2 =(git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+          const hash3 = (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+  
+          git.checkout(hash2);
+          git.adios(hash2);
+
+          expect(git.head()).toEqual(hash3);
+          expect(git.get('a').c).toEqual('xxx');
+        });
+        describe('and there are more then one derivatives', () => {
+          it('should checkout the last derivatives in the list', () => {
+            (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+            const hash2 =(git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+            (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+    
+            git.checkout(hash2);
+            const hash4 = (git.save('a', { c: 'nnn' }), git.add(), git.commit('fourth'));
+            git.checkout(hash2);
+
+            git.adios(hash2);
+  
+            expect(git.head()).toEqual(hash4);
+            expect(git.get('a').c).toEqual('nnn');
+          });
+        });
+      });
+    });
+    describe('and we want to remove the last commit', () => {
+      it('should delete the commit', () => {
+        (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+        (git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+        const hash3 = (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+
+        git.adios(hash3);
+
+        expect(git.log()).toStrictEqual({
+          "_1": {
+            "message": "first",
+            "parent": null,
+            "files": "[[\"a\",{\"c\":\"hello world\"}]]"
+          },
+          "_2": {
+            "message": "second",
+            "parent": "_1",
+            "files": "@@ -16,12 +16,13 @@\n lo w\n-orld\n+inter\n \"}]]\n"
+          }
+        });
+      });
+      describe('and the head points to the commit that we want to delete', () => {
+        it('should checkout the parent', () => {
+          (git.save('a', { c: 'hello world' }), git.add(), git.commit('first'));
+          const hash2 =(git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+          const hash3 = (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+  
+          git.adios(hash3);
+
+          expect(git.head()).toEqual(hash2);
+          expect(git.get('a').c).toEqual('hello winter');
+        });
       });
     });
   });
