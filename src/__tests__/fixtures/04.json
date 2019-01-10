@@ -1,0 +1,74 @@
+{
+  "working": [
+    [
+      "code.js",
+      {
+        "c": "console.log('hello world');"
+      }
+    ]
+  ],
+  "head": "_12",
+  "i": 20,
+  "stage": [],
+  "commits": {
+    "_6": {
+      "message": "my first commit",
+      "parent": null,
+      "files": "[[\"code.js\",{\"c\":\"console.log('test');\"}]]"
+    },
+    "_8": {
+      "message": "### Testing our approach\n\nfinializing\n\nsome kind of a long description here\n\nit looks like I can't really write as quick as I want.\n\nand a little bit more\n\n```javascript\nvar test = 20;\nfunction * (test) {\n \treturn <p>hello</p>; \n}\n```\n\n{file:code.js}\n\n*OMG it works*\n\nHTML Arrows is a [comprehensive](http://google.com) reference website for finding HTML symbol codes and entities, ASCII characters and Unicode hexadecimal values to use in your web design. Browse in grid or table format, search for HTML symbols, and check out Toptal’s professional designers’ and I write here.\n\nHTML Arrows is a comprehensive reference website for finding HTML symbol codes and entities, ASCII characters and Unicode hexadecimal values to use in your web design. Browse in grid or table format, search for HTML symbols, and check out Toptal’s professional designers’ and I write here.\n\nHTML Arrows is a comprehensive reference website for finding HTML symbol codes and entities, ASCII characters and Unicode hexadecimal values to use in your web design. Browse in grid or table format, search for HTML symbols, and check out Toptal’s professional designers’ and I write here.\n\nHTML Arrows is a comprehensive reference website for finding HTML symbol codes and entities, ASCII characters and Unicode hexadecimal values to use in your web design. Browse in grid or table format, search for HTML symbols, and check out Toptal’s professional designers’ and I write here.\n\nHTML Arrows is a comprehensive reference website for finding HTML symbol codes and entities, ASCII characters and Unicode hexadecimal values to use in your web design. Browse in grid or table format, search for HTML symbols, and check out Toptal’s professional designers’ and I write here.\n\nHTML Arrows is a comprehensive reference website for finding HTML symbol codes and entities, ASCII characters and Unicode hexadecimal values to use in your web design. Browse in grid or table format, search for HTML symbols, and check out Toptal’s professional designers’ and I write here.\n\n\n\n",
+      "parent": "_6",
+      "files": "@@ -11,16 +11,48 @@\n \",{\"c\":\"\n+for (var i = 0; i<10; i++) {\\n\\t\n console.\n@@ -59,16 +59,14 @@\n log(\n-'test');\n+i);\\n}\n \"}]]\n",
+      "meta": {
+        "position": "1"
+      }
+    },
+    "_11": {
+      "message": "## Here is a title\n\nOh yes I can edit here and basically write whatever I want.\n\n*Atext*\n\n",
+      "parent": "_6",
+      "files": "@@ -15,40 +15,8 @@\n c\":\"\n-for (var i = 0; i<10; i++) {\\n\\t\n cons\n@@ -27,14 +27,16 @@\n log(\n-i);\\n}\n+'test');\n \"}]]\n",
+      "meta": {
+        "position": "7"
+      }
+    },
+    "_12": {
+      "message": "A new one\n\n\n",
+      "parent": "_11",
+      "files": "@@ -28,12 +28,19 @@\n og('\n-test\n+hello world\n ');\"\n"
+    },
+    "_13": {
+      "message": "A new one",
+      "parent": "_8",
+      "files": "@@ -15,35 +15,58 @@\n c\":\"\n-console.log('hello world');\n+for (var i = 0; i<10; i++) {\\n\\tconsole.log(i);\\n}\n \"}]]\n"
+    },
+    "_14": {
+      "message": "Yes that's a new one",
+      "parent": "_12",
+      "files": "@@ -15,58 +15,35 @@\n c\":\"\n-for (var i = 0; i<10; i++) {\\n\\tconsole.log(i);\\n}\n+console.log('hello world');\n \"}]]\n"
+    },
+    "_16": {
+      "message": "This is a for loop",
+      "parent": "_8",
+      "files": "@@ -15,35 +15,58 @@\n c\":\"\n-console.log('hello world');\n+for (var i = 0; i<10; i++) {\\n\\tconsole.log(i);\\n}\n \"}]]\n"
+    },
+    "_18": {
+      "message": "Adding a CSS file",
+      "parent": "_14",
+      "files": "@@ -41,9 +41,137 @@\n ld');\"}]\n+,[\"styles.css\",{\"c\":\".test {\\n  margin: 0;\\n  padding: 3em 6em;\\n  font-family: tahoma, arial, sans-serif;\\n  color: #000;\\n}\"}]\n ]\n",
+      "meta": {
+        "position": "2"
+      }
+    },
+    "_19": {
+      "message": "Some more files",
+      "parent": "_18",
+      "files": "@@ -11,16 +11,40 @@\n \",{\"c\":\"\n+import 'styles.css';\\n\\n\n console.\n@@ -86,16 +86,40 @@\n \",{\"c\":\"\n+/* a comment here */\\n\\n\n .test {\\\n@@ -213,13 +213,95 @@\n  #000;\\n\n-}\n+  test: 20px;\\n}\"}],[\"markup.html\",{\"c\":\"<body>\\n\\t<p></p>\\n  <p>Hello</p>\\n</body>\n \"}]]\n"
+    },
+    "_20": {
+      "message": "Oh saved",
+      "parent": "_19",
+      "files": "@@ -23,285 +23,109 @@\n rt '\n-styles.css';\\n\\nconsole.log('hello world');\"}],[\"styles.css\",{\"c\":\"/* a comment here */\\n\\n.test {\\n  margin: 0;\\n  padding: 3em 6em;\\n  font-family: tahoma, arial, sans-serif;\\n  color: #000;\\n  test: 20px;\\n}\"}],[\"markup.html\",{\"c\":\"<body>\\n\\t<p></p>\\n  <p>Hello</p>\\n</body>\"\n+markup.html';\\n\",\"en\":true}],[\"markup.html\",{\"c\":\"<p class=\\\"hello-world\\\">Hello world</p>\",\"en\":false\n }]]\n"
+    }
+  }
+}

@@ -2091,7 +2091,7 @@ diff_match_patch.prototype.patch_fromText = function(textline) {
     while (textPointer < text.length) {
       var sign = text[textPointer].charAt(0);
       try {
-        var line = decodeURI(text[textPointer].substring(1));
+        var line = text[textPointer].substring(1);
       } catch (ex) {
         // Malformed URI sequence.
         throw new Error('Illegal escape in patch_fromText: ' + line);
@@ -2180,3 +2180,11 @@ diff_match_patch.patch_obj.prototype.toString = function() {
   }
   return text.join('').replace(/%20/g, ' ');
 };
+
+if (typeof module !== 'undefined') {
+  module.exports = diff_match_patch;
+  module.exports['diff_match_patch'] = diff_match_patch;
+  module.exports['DIFF_DELETE'] = DIFF_DELETE;
+  module.exports['DIFF_INSERT'] = DIFF_INSERT;
+  module.exports['DIFF_EQUAL'] = DIFF_EQUAL;
+}

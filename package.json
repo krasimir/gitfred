@@ -34,9 +34,6 @@
     "regenerator-runtime": "0.13.1",
     "uglify-js": "3.4.9"
   },
-  "dependencies": {
-    "diff-match-patch": "1.0.4"
-  },
   "babel": {
     "presets": [
       "@babel/preset-env"

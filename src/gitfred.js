@@ -319,7 +319,7 @@
       }
     }
     api.export = function () {
-      return git;
+      return clone(git);
     }
     api.listen = function (cb) {
       listeners.push(cb);

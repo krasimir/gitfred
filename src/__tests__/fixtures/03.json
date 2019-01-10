@@ -1,0 +1,62 @@
+{
+  "working": [
+    [
+      "code.js",
+      {
+        "c": "import 'markup.html';\nimport 'styles.css';\n\nfunction TypeCommander(selector) {\n  const el = document.querySelector(selector);\n  const api = {};\n  \n  if (!el) {\n    throw new Error('Can not find an element behind ' + selector + ' selector');\n  }\n  \n  // text element\n  const text = document.createElement('span');\n  text.innerText = el.innerText;\n  \n  // cursor element\n  const cursor = document.createElement('span');\n  cursor.setAttribute('class', 'type-commander-cursor');\n  cursor.innerHTML = '|';\n  cursor.setAttribute('style', [\n    'display: inline-block;',\n    'font-size: inherit;',\n    'font-weight: 100;',\n    'opacity: 1;',\n    'transition: opacity 200ms ease-out;',\n    '-webkit-transition: opacity 200ms ease-out;',\n  ].join(''));\n  setInterval(() => (cursor.style.opacity = cursor.style.opacity === '1' ? 0 : 1), 300);\n  \n  el.innerHTML = '';\n  el.appendChild(text);\n  el.appendChild(cursor);\n  \n  return api;\n}\n\nconst t = TypeCommander('#text');",
+        "en": true
+      }
+    ],
+    [
+      "markup.html",
+      {
+        "c": "<div>\n  <p id=\"text\">Hello</p>\n</div>",
+        "en": false
+      }
+    ],
+    [
+      "styles.css",
+      {
+        "c": "#text {\n  font-size: 2em;\n}",
+        "en": false
+      }
+    ]
+  ],
+  "head": "_2",
+  "i": 3,
+  "stage": [
+    [
+      "code.js",
+      {
+        "c": "import 'markup.html';\nimport 'styles.css';\n\nfunction TypeCommander(selector) {\n  const el = document.querySelector(selector);\n  const api = {};\n  \n  if (!el) {\n    throw new Error('Can not find an element behind ' + selector + ' selector');\n  }\n  \n  // text element\n  const text = document.createElement('span');\n  text.innerText = el.innerText;\n  \n  // cursor element\n  const cursor = document.createElement('span');\n  cursor.setAttribute('class', 'type-commander-cursor');\n  cursor.innerHTML = '|';\n  cursor.setAttribute('style', [\n    'display: inline-block;',\n    'font-size: inherit;',\n    'font-weight: 100;',\n    'opacity: 1;',\n    'transition: opacity 200ms ease-out;',\n    '-webkit-transition: opacity 200ms ease-out;',\n  ].join(''));\n  setInterval(() => (cursor.style.opacity = cursor.style.opacity === '1' ? 0 : 1), 300);\n  \n  el.innerHTML = '';\n  el.appendChild(text);\n  el.appendChild(cursor);\n  \n  return api;\n}\n\nconst t = TypeCommander('#text');",
+        "en": true
+      }
+    ],
+    [
+      "markup.html",
+      {
+        "c": "<div>\n  <p id=\"text\">Hello</p>\n</div>",
+        "en": false
+      }
+    ],
+    [
+      "styles.css",
+      {
+        "c": "#text {\n  font-size: 2em;\n}",
+        "en": false
+      }
+    ]
+  ],
+  "commits": {
+    "_1": {
+      "message": "with css animation",
+      "parent": null,
+      "files": "[[\"code.js\",{\"c\":\"import 'markup.html';\\nimport 'styles.css';\\n\\nfunction TypeCommander(selector) {\\n  const css = document.createElement('style');\\n  const el = document.querySelector(selector);\\n  const api = {};\\n  \\n  if (!el) {\\n    throw new Error('Can not find an element behind ' + selector + ' selector');\\n  }\\n\\n  css.setAttribute('id', 'type-commander-css');\\n  css.innerHTML = `\\n    @keyframes blink { from, to { opacity: 1;} 50% { opacity: 0; } }\\n    @-webkit-keyframes blink { from, to { opacity: 1;} 50% { opacity: 0; } }\\n\\t\\t.type-commander-cursor {\\n      display: inline-block;\\n      font-size: inherit;\\n      font-weight: 100;\\n      opacity: 1;\\n      transition: opacity 200ms ease-out;\\n\\t\\t\\t-webkit-transition: opacity 200ms ease-out;\\n      animation: 500ms blink step-end infinite;\\n      -webkit-animation: 500ms blink step-end infinite;\\n\\t\\t}\\n  `;\\n  document.body.appendChild(css);\\n  \\n  // text element\\n  const text = document.createElement('span');\\n  text.innerText = el.innerText;\\n  \\n  // cursor element\\n  var cursor = document.createElement('span');\\n  cursor.setAttribute('class', 'type-commander-cursor');\\n  cursor.innerHTML = '|';\\n  \\n  el.innerHTML = '';\\n  el.appendChild(text);\\n  el.appendChild(cursor);\\n  \\n  return api;\\n}\\n\\nconst t = TypeCommander('#text');\",\"en\":true}],[\"markup.html\",{\"c\":\"<div>\\n  <p id=\\\"text\\\">Hello</p>\\n</div>\",\"en\":false}],[\"styles.css\",{\"c\":\"#text {\\n  font-size: 2em;\\n}\",\"en\":false}]]"
+    },
+    "_2": {
+      "message": "",
+      "parent": "_1",
+      "files": "@@ -106,56 +106,8 @@\n nst \n-css = document.createElement('style');\\n  const \n el =\n@@ -270,264 +270,312 @@\n  }\\n\n-\\n  css.setAttribute('id', 'type-commander-css\n+  \\n  // text element\\n  const text = document.createElement('span\n ');\\n  \n-css\n+text\n .inner\n-HTML = `\\n    @keyframes blink { from, to { opacity: 1;} 50% { opacity: 0; } }\\n    @-webkit-keyframes blink { from, to { opacity: 1;} 50% { opacity: 0; } }\\n\\t\\t.type-commander-cursor {\\n  \n+Text = el.innerText;\\n  \\n  // cursor element\\n  const cursor = document.createElement('span');\\n  cursor.setAttribute('class', 'type-commander-cursor');\\n  cursor.innerHTML = '|';\\n  cursor.setAttribute('style', [\\n\n     \n+'\n disp\n@@ -592,24 +592,25 @@\n e-block;\n+',\n \\n    \n-  \n+'\n font-siz\n@@ -620,24 +620,25 @@\n inherit;\n+',\n \\n    \n-  \n+'\n font-wei\n@@ -646,24 +646,25 @@\n ht: 100;\n+',\n \\n    \n-  \n+'\n opacity:\n@@ -666,24 +666,25 @@\n city: 1;\n+',\n \\n    \n-  \n+'\n transiti\n@@ -714,16 +714,17 @@\n out;\n-\\n\\t\\t\\t\n+',\\n    '\n -web\n@@ -766,424 +766,115 @@\n out;\n-\\n      animation: 500ms blink step-end infinite;\\n      -webkit-animation: 500ms blink step-end infinite;\\n\\t\\t}\\n  `;\\n  document.body.appendChild(css);\\n  \\n  // text element\\n  const text = document.createElement('span');\\n  text.innerText = el.innerText;\\n  \\n  // cursor element\\n  var cursor = document.createElement('span');\\n  cursor.setAttribute('class', 'type-commander-cursor');\\n  cursor.innerHTML = '|'\n+',\\n  ].join(''));\\n  setInterval(() => (cursor.style.opacity = cursor.style.opacity === '1' ? 0 : 1), 300)\n ;\\n \n"
+    }
+  }
+}

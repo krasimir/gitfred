@@ -1,4 +1,4 @@
-global.diff_match_patch = require('diff-match-patch');
+global.diff_match_patch = require('../vendor/diff-match-patch');
 
 const gitfred = require('../gitfred');
 
@@ -196,7 +196,7 @@ describe('Given the gitfred library', () => {
     it('should return a diff object', () => {
       expect(git.calcStrDiff('hello world\nbbb', 'hello winter!\nbbx')).toStrictEqual({
         "text": "@@ -4,12 +4,14 @@\n lo w\n-orld\n+inter!\n %0Abb\n-b\n+x\n",
-        "html": "<span>lo w</span><del>orld</del><ins>inter!</ins><span>&para;<br />bb</span><del>b</del><ins>x</ins>"
+        "html": "<span>lo w</span><del>orld</del><ins>inter!</ins><span>%0Abb</span><del>b</del><ins>x</ins>"
       });
       expect(git.calcStrDiff('a', 'a')).toEqual(null);
     });
@@ -292,6 +292,19 @@ describe('Given the gitfred library', () => {
       (git.save('a', { content: 'd' }), git.add(), git.commit('fourth'));
 
       expect(Object.keys(git.log()).length).toEqual(4);
+    });
+    it('should deal with texts that contain %', () => {
+      git.save('a', { content: 'b' });
+      git.add();
+      git.commit('first');
+      git.save('b', { content: '50%' })
+      git.add();
+      git.commit('second');
+      git.save('b', { content: 'it should wor' });
+      git.add();
+      git.commit('third');
+
+      expect(Object.keys(git.log()).length).toEqual(3);
     });
   });
 
@@ -572,7 +585,7 @@ describe('Given the gitfred library', () => {
 
         git.adios(hash3);
 
-        expect(git.log()).toStrictEqual({
+        expect(git.export().commits).toStrictEqual({
           "_1": {
             "message": "first",
             "parent": null,
@@ -859,6 +872,25 @@ describe('Given the gitfred library', () => {
         "i": 5,
         "stage": [],
         "commits": {}
+      });
+    });
+    it('should work #3', () => {
+      git.import(require('./fixtures/03.json'));
+
+      git.add();
+      git.commit('test');
+
+      expect(git.get('markup.html')).toStrictEqual({
+        "c": "<div>\n  <p id=\"text\">Hello</p>\n</div>",
+        "en": false
+      });
+    });
+    it('should work #4', () => {
+      git.import(require('./fixtures/04.json'));
+      git.checkout('_18');
+
+      expect(git.get('styles.css')).toStrictEqual({
+        "c": ".test {\n  margin: 0;\n  padding: 3em 6em;\n  font-family: tahoma, arial, sans-serif;\n  color: #000;\n}"
       });
     });
   });
