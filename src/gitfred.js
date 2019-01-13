@@ -148,6 +148,9 @@
         })
       }
     }
+    const calculateFilesDiff = (a, b) => {
+      return decodeURI(getPatch(toText(a), toText(b)));
+    }
 
     const working = arrayAsStorage(git.working);
     const stage = arrayAsStorage(git.stage);
@@ -223,17 +226,52 @@
       notify(api.ON_COMMIT);
       return hash;
     }
-    api.amend = function (hash, message, meta) {
-      const commit = this.log()[hash];
+    api.amend = function (hashToBeEdited, changes) {
+      let all = clone(this.log());
+      let hashes = Object.keys(all);
+      
+      if (hashes.length === 0) return;
 
-      if (!commit) {
-        throw new Error(`There is no commit with hash "${ hash }".`);
+      // accumulate the correct `files` for all the commits
+      hashes.forEach(h => (all[h].files = toObj(accumulate(h))));
+
+      hashes.forEach(hash => {
+        const commit = all[hash];
+
+        if (hashToBeEdited === hash) {
+          commit.message = changes.message ? changes.message : commit.message;
+          commit.meta = changes.meta ? changes.meta : commit.meta;
+          if (changes.files) {
+            const files = clone(this.show(hash).files).reduce((result, file) => {
+              result[file[0]] = file[1];
+              return result;
+            }, {});    
+            commit.files = Object.keys(changes.files).reduce((result, filepath) => {
+              result.push([ filepath, changes.files[filepath]])
+              return result;
+            }, []);
+          }
+        }
+      });
+      if (changes.files) {
+        Object.keys(all).forEach(hash => {
+          const commit = all[hash];
+
+          if (commit.parent === null) {
+            commit._files = toText(commit.files);
+          } else {
+            commit._files = calculateFilesDiff(all[commit.parent].files, commit.files);
+          }
+        });
+        Object.keys(all).forEach(hash => {
+          all[hash].files = all[hash]._files;
+          delete all[hash]._files;
+        });
       }
 
-      commit.message = message;
-      if (meta) commit.meta = meta;
+      git.commits = all;
       notify(api.ON_COMMIT);
-      return commit;
+      return all[hashToBeEdited];
     }
     api.show = function (hash) {
       hash = hash || this.head();
@@ -285,35 +323,54 @@
         return c;        
       })(Object.keys(all).find(hash => all[hash].parent === null));
     }
-    api.adios = function (hash) {
+    api.logAccumulatedFiles = function () {
       let all = clone(this.log());
-      let toBeDeleted = all[hash];
+
+      Object.keys(all).forEach(h => (all[h].files = toObj(accumulate(h))));
+
+      return all;
+    }
+    api.adios = function (hashToDelete) {
+      let all = clone(this.log());
+      let toBeDeleted = all[hashToDelete];
       let hashes = Object.keys(all);
       
       if (hashes.length === 0) return;
       
-      const newParent = all[hash].parent;
+      const newParent = all[hashToDelete].parent;
+      let newRoot;
 
       // accumulate the correct `files` for all the commits
       hashes.forEach(h => (all[h].files = toObj(accumulate(h))));
 
-      
-      delete all[hash];
+      delete all[hashToDelete];
       hashes = Object.keys(all);
-      hashes.reduce((compareWith, h, i) => {
-        if (i === 0) {
-          compareWith = all[h].files;
-          all[h].files = toText(all[h].files);
-        } else {
-          const tmp = all[h].files;
-          all[h].files = decodeURI(getPatch(toText(compareWith), toText(all[h].files)));
-          compareWith = tmp;
+      hashes.forEach(hash => {
+        const commit = all[hash];
+
+        if (commit.parent === hashToDelete) {
+          commit.parent = newParent;
+          if (newParent === null) {
+            if (!newRoot) {
+              newRoot = hash;
+            } else {
+              commit.parent = newRoot;
+            }
+          }
         }
-        if (all[h].parent === hash) all[h].parent = newParent;
-        return compareWith;
-      }, null);
+
+        if (commit.parent === null) {
+          commit._files = toText(commit.files);
+        } else {
+          commit._files = calculateFilesDiff(all[commit.parent].files, commit.files);
+        }
+      });
+      hashes.forEach(hash => {
+        all[hash].files = all[hash]._files;
+        delete all[hash]._files;
+      });
       
-      if (this.head() === hash) {
+      if (this.head() === hashToDelete) {
         if (isEmpty(all)) {
           git.head = null;
         } else {
@@ -322,8 +379,6 @@
       }
       
       git.commits = all;
-
-      ensureProperParents();
       notify(api.ON_COMMIT);
       return toBeDeleted;
     }

@@ -24,7 +24,7 @@ I've made the library as part of my work on [demoit.app](https://demoit.app/) wh
   - [`add(filepath:<string>):<object>`](#addfilepathstringobject)
   - [`add():<object>`](#addobject)
   - [`commit(message:<string>, meta:<object>):<string>`](#commitmessagestring-metaobjectstring)
-  - [`amend(hash:<string>, message:<string>, meta:<object>):<object>`](#amendhashstring-messagestring-metaobjectobject)
+  - [`amend(hash:<string>, changes:<object>):<object>`](#amendhashstring-changesobjectobject)
   - [`show(hash:<string>):<object>`](#showhashstringobject)
   - [`diff():<object>`](#diffobject)
   - [`adios(hash):<object>`](#adioshashobject)
@@ -316,16 +316,41 @@ Registers a commit, cleans the staging area and sets the head to point to the ne
 | meta       | `<object>`    | Optional. A meta data that could be attached to the commit. (ex. `{ flag: true }`) |
 | returns       | `<string>`    | The hash of the commit which is nothing fancy but `_<number>` |
 
-### `amend(hash:<string>, message:<string>, meta:<object>):<object>`
+### `amend(hash:<string>, changes:<object>):<object>`
 
-Amends an already existing commit. (only the message and the meta)
+Amends an already existing commit.
 
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | hash       | `<string>`    | Hash of the commit that needs to be amended. |
-| message       | `<string>`    | The message of the commit |
-| meta       | `<object>`    | Optional. A meta data that could be attached to the commit. (ex. `{ flag: true }`) |
+| changes       | `<string>`    | An object key-value pairs. Check below. |
 | returns       | `<object>`    | It returns the commit object. |
+
+The `changes` object has the following structure:
+
+```js
+{
+  message: <string>,
+  meta: <object>,
+  files: {
+    <filepath:string>: <file:object>,
+    <filepath:string>: <file:object>
+  }
+}
+```
+
+For example:
+
+```js
+{
+  message: 'A better message',
+  meta: { flag: false, foo: 'bar' },
+  files: {
+    'a.js': { content: 'Foo' },
+    'b.js': { content: 'Bar' }
+  }
+};
+```
 
 ### `show(hash:<string>):<object>`
 

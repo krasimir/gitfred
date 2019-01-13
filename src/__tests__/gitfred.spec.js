@@ -440,13 +440,11 @@ describe('Given the gitfred library', () => {
     });
     describe('and we want to remove the first commit of a series of commits', () => {
       it('should delete the commit set correct parent and diff for the following commits', () => {
-        const hash = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
-        git.save('a', { c: 'b' }); git.add(); git.commit('second');
-        git.save('a', { c: 'c' }); git.add(); git.commit('third');
-        git.checkout('_1');
-        git.save('a', { c: 'd' }); git.add(); git.commit('fourth');
-
-        // console.log(git.export());
+        const hash = (git.save('a', { c: 'function a() { return 42; }' }), git.add(), git.commit('first'));
+        git.save('a', { c: 'function a() { return "hello"; }' }); git.add(); git.commit('second');
+        git.save('a', { c: 'import "foo.js"' }); git.add(); git.commit('third');
+        git.checkout(hash);
+        git.save('a', { c: 'var a, b = 50;' }); git.add(); git.commit('fourth');
 
         git.checkout(hash);
         git.adios(hash);
@@ -457,17 +455,17 @@ describe('Given the gitfred library', () => {
             "_2": {
               "message": "second",
               "parent": null,
-              "files": "[[\"a\",{\"c\":\"b\"}]]"
+              "files": "[[\"a\",{\"c\":\"function a() { return \\\"hello\\\"; }\"}]]"
             },
             "_3": {
               "message": "third",
               "parent": "_2",
-              "files": "@@ -9,9 +9,9 @@\n c\":\"\n-b\n+c\n \"}]]\n"
+              "files": "@@ -9,42 +9,25 @@\n c\":\"\n-function a() { return \\\"hello\\\"; }\n+import \\\"foo.js\\\"\n \"}]]\n"
             },
             "_4": {
               "message": "fourth",
               "parent": "_2",
-              "files": "@@ -5,13 +5,13 @@\n \",{\"c\":\"\n-c\n+d\n \"}]]\n"
+              "files": "@@ -9,42 +9,22 @@\n c\":\"\n-function a() { return \\\"hello\\\"; }\n+var a, b = 50;\n \"}]]\n"
             }
           },
           "stage": [],
@@ -475,12 +473,50 @@ describe('Given the gitfred library', () => {
             [
               "a",
               {
-                "c": "b"
+                "c": "function a() { return \"hello\"; }"
               }
             ]
           ],
           "head": "_2"
-        })
+        });
+        expect(git.logAccumulatedFiles()).toStrictEqual({
+          "_2": {
+            "message": "second",
+            "parent": null,
+            "files": [
+              [
+                "a",
+                {
+                  "c": "function a() { return \"hello\"; }"
+                }
+              ]
+            ]
+          },
+          "_3": {
+            "message": "third",
+            "parent": "_2",
+            "files": [
+              [
+                "a",
+                {
+                  "c": "import \"foo.js\""
+                }
+              ]
+            ]
+          },
+          "_4": {
+            "message": "fourth",
+            "parent": "_2",
+            "files": [
+              [
+                "a",
+                {
+                  "c": "var a, b = 50;"
+                }
+              ]
+            ]
+          }
+        });
       });
     });
     describe('and we want to remove the a middle commit', () => {
@@ -557,7 +593,7 @@ describe('Given the gitfred library', () => {
               "_4": {
                 "message": "fourth",
                 "parent": "_1",
-                "files": "@@ -9,11 +9,11 @@\n c\":\"\n-xxx\n+nnn\n \"}]]\n"
+                "files": "@@ -9,19 +9,11 @@\n c\":\"\n-hello world\n+nnn\n \"}]]\n"
               }
             },
             "stage": [],
@@ -821,24 +857,137 @@ describe('Given the gitfred library', () => {
   /* ************************************************************************************** .amend */
 
   describe('when using `.amend` method', () => {
-    it('should allow us to change a commit message and meta', () => {
-      const hashA = (git.save('a', { c: 'hello world' }), git.add(), git.commit('first', { flag: true }));
-      git.amend(hashA, 'better message', { flag: false, foo: 'bar' });
+    it('should allow us to change the commit', () => {
+      git.save('a', { c: 'hello world' }); git.add();
+      const hash = git.commit('first', { flag: true });
+      
+      const hashSecond = (git.save('a', { c: 'hello winter' }), git.add(), git.commit('second'));
+      git.checkout(hash);
+      const hashThird = (git.save('a', { c: 'xxx' }), git.add(), git.commit('third'));
+      const hashFourth = (git.save('d', { c: 'var a = 20;' }), git.add(), git.commit('fourth'));
 
-      expect(git.show(hashA)).toStrictEqual({
-        "message": "better message",
-        "parent": null,
-        "files": [
+      git.amend(hash, {
+        message: 'better message',
+        meta: { flag: false, foo: 'bar' },
+        files: {
+          'a': { c: 'Wow, that indeed works' },
+          'b': { c: 'and a new file' }
+        }
+      });
+      git.amend(hashSecond, {
+        message: 'second second',
+        files: {
+          'c': 'hello winter!'
+        }
+      });
+      git.amend(hashThird, {
+        files: {
+          'c': 'yyy'
+        }
+      });
+      git.amend(hashFourth, {
+        files: {
+          'e': 'foo bar'
+        }
+      });
+
+      expect(git.export()).toStrictEqual({
+        "i": 4,
+        "commits": {
+          "_1": {
+            "message": "better message",
+            "parent": null,
+            "files": "[[\"a\",{\"c\":\"Wow, that indeed works\"}],[\"b\",{\"c\":\"and a new file\"}]]",
+            "meta": {
+              "flag": false,
+              "foo": "bar"
+            }
+          },
+          "_2": {
+            "message": "second second",
+            "parent": "_1",
+            "files": "@@ -1,67 +1,23 @@\n [[\"\n-a\",{\"c\":\"Wow, that indeed works\"}],[\"b\",{\"c\":\"and a new file\"}\n+c\",\"hello winter!\"\n ]]\n"
+          },
+          "_3": {
+            "message": "third",
+            "parent": "_1",
+            "files": "@@ -1,67 +1,13 @@\n [[\"\n-a\",{\"c\":\"Wow, that indeed works\"}],[\"b\",{\"c\":\"and a new file\"}\n+c\",\"yyy\"\n ]]\n"
+          },
+          "_4": {
+            "message": "fourth",
+            "parent": "_3",
+            "files": "@@ -1,13 +1,17 @@\n [[\"\n-c\n+e\n \",\"\n-yyy\n+foo bar\n \"]]\n"
+          }
+        },
+        "stage": [],
+        "working": [
           [
             "a",
             {
-              "c": "hello world"
+              "c": "xxx"
+            }
+          ],
+          [
+            "d",
+            {
+              "c": "var a = 20;"
             }
           ]
         ],
-        "meta": {
-          "flag": false,
-          "foo": "bar"
+        "head": "_4"
+      });
+      expect(git.logAccumulatedFiles()).toStrictEqual({
+        "_1": {
+          "message": "better message",
+          "parent": null,
+          "files": [
+            [
+              "a",
+              {
+                "c": "Wow, that indeed works"
+              }
+            ],
+            [
+              "b",
+              {
+                "c": "and a new file"
+              }
+            ]
+          ],
+          "meta": {
+            "flag": false,
+            "foo": "bar"
+          }
+        },
+        "_2": {
+          "message": "second second",
+          "parent": "_1",
+          "files": [
+            [
+              "c",
+              "hello winter!"
+            ]
+          ]
+        },
+        "_3": {
+          "message": "third",
+          "parent": "_1",
+          "files": [
+            [
+              "c",
+              "yyy"
+            ]
+          ]
+        },
+        "_4": {
+          "message": "fourth",
+          "parent": "_3",
+          "files": [
+            [
+              "e",
+              "foo bar"
+            ]
+          ]
         }
       });
     });
