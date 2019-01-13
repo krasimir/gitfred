@@ -13,6 +13,7 @@ I've made the library as part of my work on [demoit.app](https://demoit.app/) wh
 - [API](#api)
   - [`save(filepath:<string>, file:<object>):<object>`](#savefilepathstring-fileobjectobject)
   - [`save(files:<object>):<object>`](#savefilesobjectobject)
+  - [`discard():<object>`](#discardobject)
   - [`saveAll(file:<object>):<object>`](#saveallfileobjectobject)
   - [`del(filepath:<string>):<object>`](#delfilepathstringobject)
   - [`get(filepath:<string>):<object>`](#getfilepathstringobject)
@@ -213,6 +214,14 @@ Saves multiple files in the working directory.
 |               | type          | description  |
 | ------------- |:-------------:| -----|
 | files       | `<object>`    | A map where the keys are filepaths and the values are file objects. (ex. `{ "script.js": { content: "let foo = 'bar';" } }`) |
+| returns       | `<object>`    | Gitfred instance. |
+
+### `discard():<object>`
+
+Cleans up the working directory.
+
+|               | type          | description  |
+| ------------- |:-------------:| -----|
 | returns       | `<object>`    | Gitfred instance. |
 
 ### `saveAll(file:<object>):<object>`

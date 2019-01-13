@@ -144,7 +144,7 @@
       if (typeof filepath === 'object' && typeof file === 'undefined') {
         Object.keys(filepath).forEach(f => working.save(f, filepath[f]));
         notify(api.ON_CHANGE);
-        return git;
+        return api;
       } else {
         working.save(filepath, file);
         notify(api.ON_CHANGE);
@@ -154,12 +154,17 @@
     api.saveAll = function(file) {
       working.saveAll(file);
       notify(api.ON_CHANGE);
-      return git;
+      return api;
+    }
+    api.discard = function () {
+      working.replaceStorage(git.working = []);
+      notify(api.ON_CHANGE);
+      return api;
     }
     api.del = function (filepath) {
       working.del(filepath);
       notify(api.ON_CHANGE);
-      return git;
+      return api;
     }
     api.rename = function (oldName, newName) {
       working.rename(oldName, newName);
@@ -188,7 +193,7 @@
         stage.save(filepath, clone(file));
       }
       notify(api.ON_ADD);
-      return git;
+      return api;
     }
     api.commit = function (message, meta) {
       if (stage.length() === 0) throw new Error('NOTHING_TO_COMMIT');
@@ -244,7 +249,7 @@
       git.head = hash;
       working.replaceStorage(git.working = toObj(accumulate(hash)));
       notify(api.ON_CHECKOUT);
-      return git;
+      return api;
     }
     api.staged = function () {
       return stage;
@@ -336,7 +341,7 @@
       if (!git.commits) git.commits = {};
       working.replaceStorage(git.working);
       stage.replaceStorage(git.stage);
-      return git;
+      return api;
     }
     api.commitDiffToHTML = function (hash) {
       if (!git.commits[hash]) throw new Error(`There is no commit with hash ${ hash }.`);

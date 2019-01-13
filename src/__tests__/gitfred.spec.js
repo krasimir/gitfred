@@ -78,6 +78,21 @@ describe('Given the gitfred library', () => {
     });
   });
 
+  /* ************************************************************************************** .discard */
+  describe('when using the `.discard` method', () => {
+    it('should clean up the working directory', () => {
+      git.save('script.js', { content: 'let a = 10;', flag: true });
+      expect(git.getAll()).toStrictEqual([
+        [
+          "script.js",
+          { "content": "let a = 10;", "flag": true }
+        ]
+      ]);
+      git.discard();
+      expect(git.getAll()).toStrictEqual([]);
+    });
+  });
+
   /* ************************************************************************************** .delete */
 
   describe('when using the `.delete` method', () => {
