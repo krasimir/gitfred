@@ -4,9 +4,9 @@
 
 > In-memory git-like library for managing textual content.
 
-I've made the library as part of my work on [demoit.app](https://demoit.app/) where I need to store multiple files and their different versions. Storing all the content every time simply doesn't scale so I needed a smarter approach. Something like Git but running in the browser. It needed to be lightweight and to provide similar diff/patch experience. That's what Gitfred is.
+I've made the library as part of my work on [poet.codes](https://poet.codes/) where I need to store multiple files and their different versions. Storing all the content every time simply doesn't scale so I needed a smarter approach. Something like Git but running in the browser. It needed to be lightweight and to provide similar diff/patch experience. That's what Gitfred is.
 
-[Demo](https://demoit.app/e/ZLXBJMGKxiP)
+[Demo](https://poet.codes/e/ZLXBJMGKxiP)
 
 - [Installation](#installation)
 - [Usage](#usage)
