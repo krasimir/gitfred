@@ -157,8 +157,7 @@
       return api;
     }
     api.discard = function () {
-      working.replaceStorage(git.working = []);
-      notify(api.ON_CHANGE);
+      this.checkout(undefined, true);
       return api;
     }
     api.del = function (filepath) {
@@ -237,10 +236,10 @@
       return c;
     }
     api.checkout = function (hash, force = false) {
-      if (stage.length() > 0 && !force) {
+      if (!force && stage.length() > 0) {
         throw new Error('UNCOMMITED_CHANGES');
       }
-      if (findDiff(toText(git.working), this.head()) !== '' && !force) {
+      if (!force && findDiff(toText(git.working), this.head()) !== '') {
         throw new Error('UNSTAGED_FILES');
       }
       if (typeof hash === 'undefined') {

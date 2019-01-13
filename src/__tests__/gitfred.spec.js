@@ -82,14 +82,16 @@ describe('Given the gitfred library', () => {
   describe('when using the `.discard` method', () => {
     it('should clean up the working directory', () => {
       git.save('script.js', { content: 'let a = 10;', flag: true });
+      git.add();
+      git.commit('first');
       expect(git.getAll()).toStrictEqual([
-        [
-          "script.js",
-          { "content": "let a = 10;", "flag": true }
-        ]
+        [ "script.js", { "content": "let a = 10;", "flag": true } ]
       ]);
+      git.save('script.js', { content: 'let a = 20;', flag: false });
       git.discard();
-      expect(git.getAll()).toStrictEqual([]);
+      expect(git.getAll()).toStrictEqual([
+        [ "script.js", { "content": "let a = 10;", "flag": true } ]
+      ]);
     });
   });
 
