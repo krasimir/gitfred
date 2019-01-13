@@ -1076,6 +1076,26 @@ describe('Given the gitfred library', () => {
         "c": "p {\n  padding: 1em;\n}"
       });
     });
+    it('should work #6', () => {
+      git.import(require('./fixtures/06.json'));
+      git.amend('_3', { message: 'third commit'});
+
+      expect(git.show('_3')).toStrictEqual({
+        "message": "third commit",
+        "parent": "_2",
+        "files": [
+          [
+            "foo.js",
+            {
+              "content": "winter is comming!"
+            }
+          ]
+        ],
+        "meta": {
+          "flag": true
+        }
+      });
+    });
   });
   
 });

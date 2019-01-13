@@ -253,21 +253,21 @@
           }
         }
       });
-      if (changes.files) {
-        Object.keys(all).forEach(hash => {
-          const commit = all[hash];
+      
+      // bringing back the diffs
+      Object.keys(all).forEach(hash => {
+        const commit = all[hash];
 
-          if (commit.parent === null) {
-            commit._files = toText(commit.files);
-          } else {
-            commit._files = calculateFilesDiff(all[commit.parent].files, commit.files);
-          }
-        });
-        Object.keys(all).forEach(hash => {
-          all[hash].files = all[hash]._files;
-          delete all[hash]._files;
-        });
-      }
+        if (commit.parent === null) {
+          commit._files = toText(commit.files);
+        } else {
+          commit._files = calculateFilesDiff(all[commit.parent].files, commit.files);
+        }
+      });
+      Object.keys(all).forEach(hash => {
+        all[hash].files = all[hash]._files;
+        delete all[hash]._files;
+      });
 
       git.commits = all;
       notify(api.ON_COMMIT);

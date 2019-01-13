@@ -1,0 +1,33 @@
+{
+  "i": 3,
+  "commits": {
+    "_1": {
+      "message": "first commit",
+      "parent": null,
+      "files": "[[\"foo.js\",{\"content\":\"hello winter\"}]]"
+    },
+    "_2": {
+      "message": "second commit",
+      "parent": "_1",
+      "files": "@@ -20,20 +20,25 @@\n t\":\"\n-hello \n winter\n+ is comming\n \"}]]\n"
+    },
+    "_3": {
+      "message": "third coit",
+      "parent": "_2",
+      "files": "@@ -33,12 +33,13 @@\n  comming\n+!\n \"}]]\n",
+      "meta": {
+        "flag": true
+      }
+    }
+  },
+  "stage": [],
+  "working": [
+    [
+      "foo.js",
+      {
+        "content": "winter is comming!"
+      }
+    ]
+  ],
+  "head": "_3"
+}
