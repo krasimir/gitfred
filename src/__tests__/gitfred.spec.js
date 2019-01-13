@@ -443,12 +443,16 @@ describe('Given the gitfred library', () => {
         const hash = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
         git.save('a', { c: 'b' }); git.add(); git.commit('second');
         git.save('a', { c: 'c' }); git.add(); git.commit('third');
+        git.checkout('_1');
+        git.save('a', { c: 'd' }); git.add(); git.commit('fourth');
+
+        // console.log(git.export());
 
         git.checkout(hash);
         git.adios(hash);
 
         expect(git.export()).toStrictEqual({
-          "i": 3,
+          "i": 4,
           "commits": {
             "_2": {
               "message": "second",
@@ -459,6 +463,11 @@ describe('Given the gitfred library', () => {
               "message": "third",
               "parent": "_2",
               "files": "@@ -9,9 +9,9 @@\n c\":\"\n-b\n+c\n \"}]]\n"
+            },
+            "_4": {
+              "message": "fourth",
+              "parent": "_2",
+              "files": "@@ -5,13 +5,13 @@\n \",{\"c\":\"\n-c\n+d\n \"}]]\n"
             }
           },
           "stage": [],
@@ -908,6 +917,14 @@ describe('Given the gitfred library', () => {
 
       expect(git.get('styles.css')).toStrictEqual({
         "c": ".test {\n  margin: 0;\n  padding: 3em 6em;\n  font-family: tahoma, arial, sans-serif;\n  color: #000;\n}"
+      });
+    });
+    it('should work #5', () => {
+      git.import(require('./fixtures/05.json'));
+      git.show();
+
+      expect(git.get('styles.css')).toStrictEqual({
+        "c": "p {\n  padding: 1em;\n}"
       });
     });
   });

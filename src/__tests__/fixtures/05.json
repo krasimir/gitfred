@@ -1,0 +1,48 @@
+{
+  "working": [
+    [
+      "App.js",
+      {
+        "c": "import 'styles.css';\n\nconst Greeting = () => <p>Hello.</p>;\nconst App = function () {\n  return <Greeting />;\n}\n\nReactDOM.render(\n  <App />,\n  document.querySelector('.output')\n);\n",
+        "en": true
+      }
+    ],
+    [
+      "styles.css",
+      {
+        "c": "p {\n  padding: 1em;\n}"
+      }
+    ]
+  ],
+  "head": "_12",
+  "i": 12,
+  "stage": [],
+  "commits": {
+    "_9": {
+      "message": "## The problem\n\nWe see that the `<App>` component *has the knowledge* about the name of the user. And because it has that data it passes it down to the `<Greeting>` component. This approach however is not very flexible because then `<App>` can not be used in the context of another need. What if we have a `<Title>` component that uses `<h1>` instead of `<p>` and we again want to use the `name`.\n\n```javascript\nconst Title = ({ name }) => <h1>Hello, { name }.</h1>;\n```",
+      "parent": null,
+      "files": "[[\"App.js\",{\"c\":\"import 'styles.css';\\n\\nconst Greeting = ({ name }) => <p>Hello, { name }.</p>;\\nconst App = function () {\\n  const name = 'Jon Snow';\\n  return <Greeting name={ name }/>;\\n}\\n\\nReactDOM.render(<App />, document.querySelector('.output'));\\n\",\"en\":true}],[\"styles.css\",{\"c\":\"p {\\n  padding: 1em;\\n}\"}]]",
+      "meta": {
+        "position": "2"
+      }
+    },
+    "_10": {
+      "message": "## Implementing the pattern 2\n\nEvery React component receives a `children` prop. Usually that is another React component or maybe some raw data like string or a number. However, this may be also a plain JavaScript object or a function. As we see here, in the final code we did pass a function:\n\n```javascript\n(name) => <Greeting name={ name } />\n```\n\nThat function should return something that React can render. And here is the beauty of the pattern. We may pass whatever we want to that function. In our case that is the name because that is what `<Greeting>` needs.\n\nIn the end the `<App>` component only deals with the *knowledge* that it has and its main responsibility is to pass it to the children.\n\n{file:App.js}\n\n```javascript\n// commit here\nfunction a() {\n\treturn 42;  \n}\n```\n\n```css\nbody {\n  width: 100%;\n}\n```",
+      "parent": "_9",
+      "files": "@@ -113,16 +113,28 @@\n nction (\n+{ children }\n ) {\\n  c\n@@ -171,66 +171,128 @@\n urn \n-<Greeting name={ name }/>;\\n}\\n\\nReactDOM.render(<App />, \n+children(name);\\n}\\n\\nReactDOM.render(\\n  <App>\\n    {\\n      (name) => <Greeting name={ name } />\\n    }\\n  </App>,\\n\\t\n docu\n@@ -320,16 +320,18 @@\n output')\n+\\n\n );\\n\",\"e\n",
+      "meta": {
+        "position": "3"
+      }
+    },
+    "_11": {
+      "message": "Formatting",
+      "parent": "_10",
+      "files": "@@ -225,15 +225,8 @@\n    {\n-\\n     \n  (na\n@@ -258,21 +258,16 @@\n ame } />\n-\\n   \n  }\\n  </\n"
+    },
+    "_12": {
+      "message": "## Function as children pattern\n\nFunction as children pattern is one of my favorite. It gives us flexibility and a powerful API to pass data around.\n\nConsider the code on the left. We have `<App>` component that renders another component called `<Greeting>`. Now let's go a little bit further and say that we want to print the name of the user next to the \"Hello\" string.",
+      "parent": null,
+      "files": "@@ -52,24 +52,16 @@\n ting = (\n-{ name }\n ) => <p>\n@@ -69,18 +69,8 @@\n ello\n-, { name }\n .</p\n@@ -99,170 +99,74 @@\n on (\n-{ children }) {\\n  const name = 'Jon Snow';\\n  return children(name);\\n}\\n\\nReactDOM.render(\\n  <App>\\n    { (name) => <Greeting name={ name }\n+) {\\n  return <Greeting />;\\n}\\n\\nReactDOM.render(\\n  <App\n  />\n- }\n+,\n \\n  \n-</App>,\\n\\t\n docu\n"
+    }
+  }
+}

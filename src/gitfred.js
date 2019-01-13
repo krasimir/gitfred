@@ -136,6 +136,18 @@
       }, '');
       return result;
     }, '');
+    const ensureProperParents = () => {
+      const all = git.commits;
+      const root = Object.keys(git.commits).find(hash => (all[hash].parent === null && all[hash].files.match(/^\[/)));
+
+      if (root) {
+        Object.keys(git.commits).forEach(hash => {
+          if (all[hash].parent === null && hash !== root) {
+            all[hash].parent = root;
+          }
+        })
+      }
+    }
 
     const working = arrayAsStorage(git.working);
     const stage = arrayAsStorage(git.stage);
@@ -275,18 +287,19 @@
     }
     api.adios = function (hash) {
       let all = clone(this.log());
+      let toBeDeleted = all[hash];
       let hashes = Object.keys(all);
       
       if (hashes.length === 0) return;
       
       const newParent = all[hash].parent;
 
+      // accumulate the correct `files` for all the commits
       hashes.forEach(h => (all[h].files = toObj(accumulate(h))));
 
-      const toBeDeleted = all[hash];
+      
       delete all[hash];
       hashes = Object.keys(all);
-
       hashes.reduce((compareWith, h, i) => {
         if (i === 0) {
           compareWith = all[h].files;
@@ -310,6 +323,7 @@
       
       git.commits = all;
 
+      ensureProperParents();
       notify(api.ON_COMMIT);
       return toBeDeleted;
     }
@@ -340,6 +354,7 @@
       if (!git.commits) git.commits = {};
       working.replaceStorage(git.working);
       stage.replaceStorage(git.stage);
+      ensureProperParents();
       return api;
     }
     api.commitDiffToHTML = function (hash) {
