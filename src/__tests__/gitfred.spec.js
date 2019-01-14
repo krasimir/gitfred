@@ -857,7 +857,7 @@ describe('Given the gitfred library', () => {
   /* ************************************************************************************** .amend */
 
   describe('when using `.amend` method', () => {
-    it('should allow us to change the commit', () => {
+    it('should allow us to change a commit', () => {
       git.save('a', { c: 'hello world' }); git.add();
       const hash = git.commit('first', { flag: true });
       
@@ -989,6 +989,72 @@ describe('Given the gitfred library', () => {
             ]
           ]
         }
+      });
+    });
+    describe('and we use the method with no arguments', () => {
+      it('should update the files of the commit where the head points to by getting the working directory', () => {
+        git.save('a', { c: 'foo' }); git.add(); git.commit('first');
+        git.save('a', { c: 'bar' }); git.add(); git.commit('second');
+        git.checkout('_1'); git.save('b', { c: 'zoo' }); git.del('a');
+        git.amend();
+        git.checkout('_2'); git.save('a', { c: 'hello' }); git.add(); git.commit('third');
+        git.checkout('_2'); git.del('a');
+        git.amend();
+
+        expect(git.logAccumulatedFiles()).toStrictEqual({
+          "_1": {
+            "message": "first",
+            "parent": null,
+            "files": [
+              [
+                "b",
+                {
+                  "c": "zoo"
+                }
+              ]
+            ]
+          },
+          "_2": {
+            "message": "second",
+            "parent": "_1",
+            "files": []
+          },
+          "_3": {
+            "message": "third",
+            "parent": "_2",
+            "files": [
+              [
+                "a",
+                {
+                  "c": "hello"
+                }
+              ]
+            ]
+          }
+        });
+        expect(git.export()).toStrictEqual({
+          "i": 3,
+          "commits": {
+            "_1": {
+              "message": "first",
+              "parent": null,
+              "files": "[[\"b\",{\"c\":\"zoo\"}]]"
+            },
+            "_2": {
+              "message": "second",
+              "parent": "_1",
+              "files": "@@ -1,19 +1,2 @@\n [\n-[\"b\",{\"c\":\"zoo\"}]\n ]\n"
+            },
+            "_3": {
+              "message": "third",
+              "parent": "_2",
+              "files": "@@ -1,2 +1,21 @@\n [\n+[\"a\",{\"c\":\"hello\"}]\n ]\n"
+            }
+          },
+          "stage": [],
+          "working": [],
+          "head": "_2"
+        });
       });
     });
   });

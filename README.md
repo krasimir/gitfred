@@ -352,6 +352,8 @@ For example:
 };
 ```
 
+If the method is called with no arguments Gitfred takes whatever is in the current working directory and applies it to the commit where the `head` points to.
+
 ### `show(hash:<string>):<object>`
 
 Gets a commit behind a specific hash. If used with no arguments returns the commit where the head points to.

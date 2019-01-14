@@ -123,6 +123,12 @@
       },
       replaceStorage(newStorage) {
         storage = newStorage;
+      },
+      toObject() {
+        return storage.reduce((result, file) => {
+          result[file[0]] = file[1];
+          return result;
+        }, {})
       }
     });
     const diffToHTML = diff => createDMP().patch_fromText(diff).reduce((result, patch) => {
@@ -227,6 +233,9 @@
       return hash;
     }
     api.amend = function (hashToBeEdited, changes) {
+      if (typeof hashToBeEdited === 'undefined' && typeof changes === 'undefined' && this.head !== null) {
+        return this.amend(this.head(), { files: working.toObject() });
+      }
       let all = clone(this.log());
       let hashes = Object.keys(all);
       
@@ -242,10 +251,6 @@
           commit.message = changes.message ? changes.message : commit.message;
           commit.meta = changes.meta ? changes.meta : commit.meta;
           if (changes.files) {
-            const files = clone(this.show(hash).files).reduce((result, file) => {
-              result[file[0]] = file[1];
-              return result;
-            }, {});    
             commit.files = Object.keys(changes.files).reduce((result, filepath) => {
               result.push([ filepath, changes.files[filepath]])
               return result;
