@@ -135,6 +135,7 @@
       if (!patch.diffs) return result;
       result += patch.diffs.reduce((result, diff) => {
         let text = diff[1].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '&para;<br />');
+        text = escapeHTML(decodeURI(text)).replace(/\n/g, '<br />');
         if (diff[0] === 1) result += '<ins>' + text + '</ins>';
         if (diff[0] === -1) result += '<del>' + text + '</del>';
         if (diff[0] === 0) result += '<span>' + text + '</span>';
@@ -157,6 +158,12 @@
     const calculateFilesDiff = (a, b) => {
       return decodeURI(getPatch(toText(a), toText(b)));
     }
+    const escapeHTML = (html) => {
+      const tagsToReplace = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+      const replaceTag = (tag) => (tagsToReplace[tag] || tag);
+    
+      return html.replace(/[&<>]/g, replaceTag);
+    };
 
     const working = arrayAsStorage(git.working);
     const stage = arrayAsStorage(git.stage);

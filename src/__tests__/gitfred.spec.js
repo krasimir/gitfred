@@ -211,9 +211,17 @@ describe('Given the gitfred library', () => {
   });
   describe('when using the `.calcDiff` method', () => {
     it('should return a diff object', () => {
-      expect(git.calcStrDiff('hello world\nbbb', 'hello winter!\nbbx')).toStrictEqual({
-        "text": "@@ -4,12 +4,14 @@\n lo w\n-orld\n+inter!\n %0Abb\n-b\n+x\n",
-        "html": "<span>lo w</span><del>orld</del><ins>inter!</ins><span>%0Abb</span><del>b</del><ins>x</ins>"
+const a = `
+  hello world
+`;
+const b = `
+  hallo
+    winter
+`;
+      // console.log(JSON.stringify(git.calcStrDiff(a, b), null, 2));
+      expect(git.calcStrDiff(a, b)).toStrictEqual({
+        "text": "@@ -1,15 +1,20 @@\n %0A  h\n-e\n+a\n llo\n- world\n+%0A    winter\n %0A\n",
+        "html": "<span><br />  h</span><del>e</del><ins>a</ins><span>llo</span><del> world</del><ins><br />    winter</ins><span><br /></span>"
       });
       expect(git.calcStrDiff('a', 'a')).toEqual(null);
     });
