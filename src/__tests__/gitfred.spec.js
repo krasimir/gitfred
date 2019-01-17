@@ -213,15 +213,17 @@ describe('Given the gitfred library', () => {
     it('should return a diff object', () => {
 const a = `
   hello world
+  third line
 `;
 const b = `
-  hallo
-    winter
-`;
+  Hello world, and this is a text
+  on multiple
+  lines.
+  third line`;
       // console.log(JSON.stringify(git.calcStrDiff(a, b), null, 2));
       expect(git.calcStrDiff(a, b)).toStrictEqual({
-        "text": "@@ -1,15 +1,20 @@\n %0A  h\n-e\n+a\n llo\n- world\n+%0A    winter\n %0A\n",
-        "html": "<span><br />  h</span><del>e</del><ins>a</ins><span>llo</span><del> world</del><ins><br />    winter</ins><span><br /></span>"
+        "text": "@@ -1,12 +1,12 @@\n %0A  \n-h\n+H\n ello wor\n@@ -7,16 +7,59 @@\n lo world\n+, and this is a text%0A  on multiple%0A  lines.\n %0A  third\n@@ -63,9 +63,8 @@\n ird line\n-%0A\n",
+        "html": "<span><br />  </span><del>h</del><ins>H</ins><span>ello wor</span><br /><span>lo world</span><ins>, and this is a text<br />  on multiple<br />  lines.</ins><span><br />  third</span><br /><span>ird line</span><del><br /></del>"
       });
       expect(git.calcStrDiff('a', 'a')).toEqual(null);
     });

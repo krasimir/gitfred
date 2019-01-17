@@ -131,18 +131,22 @@
         }, {})
       }
     });
-    const diffToHTML = diff => createDMP().patch_fromText(diff).reduce((result, patch) => {
-      if (!patch.diffs) return result;
-      result += patch.diffs.reduce((result, diff) => {
-        let text = diff[1].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '&para;<br />');
-        text = escapeHTML(decodeURI(text)).replace(/\n/g, '<br />');
-        if (diff[0] === 1) result += '<ins>' + text + '</ins>';
-        if (diff[0] === -1) result += '<del>' + text + '</del>';
-        if (diff[0] === 0) result += '<span>' + text + '</span>';
+    const diffToHTML = diff => {
+      const allDiffs = createDMP().patch_fromText(diff);
+
+      return allDiffs.reduce((result, patch, i) => {
+        if (!patch.diffs) return result;
+        result += patch.diffs.reduce((result, diff) => {
+          let text = escapeHTML(decodeURI(diff[1])).replace(/\n/g, '<br />');
+          if (diff[0] === 1) result += '<ins>' + text + '</ins>';
+          if (diff[0] === -1) result += '<del>' + text + '</del>';
+          if (diff[0] === 0) result += '<span>' + text + '</span>';
+          return result;
+        }, '');
+        if (i < allDiffs.length - 1) result += '<br />';
         return result;
       }, '');
-      return result;
-    }, '');
+    }
     const ensureProperParents = () => {
       const all = git.commits;
       const root = Object.keys(git.commits).find(hash => (all[hash].parent === null && all[hash].files.match(/^\[/)));
