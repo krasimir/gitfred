@@ -143,7 +143,7 @@
           if (diff[0] === 0) result += '<span>' + text + '</span>';
           return result;
         }, '');
-        if (i < allDiffs.length - 1) result += '<br />';
+        if (i < allDiffs.length - 1) result += '<hr />';
         return result;
       }, '');
     }
