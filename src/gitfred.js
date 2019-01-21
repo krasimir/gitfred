@@ -40,19 +40,29 @@
 
       return dmp.patch_apply(dmp.patch_fromText(patch), source).shift();
     }
-    const accumulate = (hash, diffs = [], commits = false) => {
-      const commit = (commits || api.log())[hash];
+    const accumulateAll = () => {
+      const all = api.log();
+      const map = {};
 
-      if (!commit) {
-        throw new Error(`There is no commit with hash "${ hash }".`);
+      Object.keys(all).forEach(function process(hash) {
+        if (map[hash]) return map[hash];
+        if (all[hash].parent === null) {
+          map[hash] = all[hash].files;
+        } else {
+          map[hash] = applyPatch(process(all[hash].parent), all[hash].files);
+        }
+      });
+
+      return map;
+    }
+    const accumulate = hash => {
+      const all = accumulateAll();
+
+      if (!all[hash]) {
+        throw new Error('There is no commit with hash ' + hash);
       }
-      if (commit.parent === null) {
-        return diffs.reduce((result, patch) => {
-          return applyPatch(result, patch);
-        }, commit.files);
-      } else {
-        return accumulate(commit.parent, [commit.files].concat(diffs), commits);
-      }
+
+      return all[hash];
     }
     const getPatch = (parentContent, newContent) => {
       const dmp = createDMP();
@@ -63,7 +73,7 @@
       }
       return dmp.patch_toText(dmp.patch_make(parentContent, newContent, diff));
     }
-    const findDiff = (newContent, parent) => {      
+    const findDiff = (newContent, parent) => {
       return decodeURI(getPatch(accumulate(parent), newContent));
     }
     const notify = event => listeners.forEach(cb => cb(event));
@@ -251,9 +261,10 @@
       let hashes = Object.keys(all);
       
       if (hashes.length === 0) return;
-
+      
       // accumulate the correct `files` for all the commits
-      hashes.forEach(h => (all[h].files = toObj(accumulate(h))));
+      let accumulated = accumulateAll();
+      hashes.forEach(h => (all[h].files = toObj(accumulated[h])));
 
       hashes.forEach(hash => {
         const commit = all[hash];
@@ -339,12 +350,18 @@
         return c;        
       })(Object.keys(all).find(hash => all[hash].parent === null));
     }
-    api.logAccumulatedFiles = function () {
-      let all = clone(this.log());
+    api.rollOut = function () {
+      const all = this.log();
+      const accumulated = accumulateAll();
 
-      Object.keys(all).forEach(h => (all[h].files = toObj(accumulate(h))));
-
-      return all;
+      return Object.keys(all).reduce((result, hash) => {
+        result[hash] = {};
+        result[hash].message = all[hash].message;
+        result[hash].parent = all[hash].parent;
+        all[hash].meta ? result[hash].meta = all[hash].meta : null;
+        result[hash].files = toObj(accumulated[hash]);
+        return result;
+      }, {});
     }
     api.adios = function (hashToDelete) {
       let all = clone(this.log());
@@ -357,7 +374,8 @@
       let newRoot;
 
       // accumulate the correct `files` for all the commits
-      hashes.forEach(h => (all[h].files = toObj(accumulate(h))));
+      let accumulated = accumulateAll();
+      hashes.forEach(h => (all[h].files = toObj(accumulated[h])));
 
       delete all[hashToDelete];
       hashes = Object.keys(all);

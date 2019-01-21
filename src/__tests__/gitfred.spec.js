@@ -3,6 +3,17 @@ global.diff_match_patch = require('../vendor/diff-match-patch');
 const gitfred = require('../gitfred');
 
 const isEmpty = obj => Object.keys(obj).length === 0 && obj.constructor === Object;
+const perf = {
+  start() {
+    this.t1 = performance.now();
+  },
+  end() {
+    this.t2 = performance.now();
+  },
+  show() {
+    return this.t2 - this.t1;
+  }
+}
 
 let git;
 
@@ -206,6 +217,66 @@ describe('Given the gitfred library', () => {
             "derivatives": []
           }
         ]
+      })
+    });
+  });
+  describe('when using the `.rollOut` method', () => {
+    it('should return a list of the commits but in a tree format', () => {
+      const hash = (git.save('script.js', { foo: '1' }), git.add(), git.commit('first'));
+      git.save('script.js', { foo: '2' }); git.add(); git.commit('second');
+      git.save('script.js', { foo: '3' }); git.add(); git.commit('third');
+      git.checkout(hash);
+      git.save('script.js', { foo: '4' }); git.add(); git.commit('fourth');
+
+      expect(git.rollOut()).toStrictEqual({
+        "_1": {
+          "message": "first",
+          "parent": null,
+          "files": [
+            [
+              "script.js",
+              {
+                "foo": "1"
+              }
+            ]
+          ]
+        },
+        "_2": {
+          "message": "second",
+          "parent": "_1",
+          "files": [
+            [
+              "script.js",
+              {
+                "foo": "2"
+              }
+            ]
+          ]
+        },
+        "_3": {
+          "message": "third",
+          "parent": "_2",
+          "files": [
+            [
+              "script.js",
+              {
+                "foo": "3"
+              }
+            ]
+          ]
+        },
+        "_4": {
+          "message": "fourth",
+          "parent": "_1",
+          "files": [
+            [
+              "script.js",
+              {
+                "foo": "4"
+              }
+            ]
+          ]
+        }
       })
     });
   });
@@ -489,7 +560,7 @@ const b = `
           ],
           "head": "_2"
         });
-        expect(git.logAccumulatedFiles()).toStrictEqual({
+        expect(git.rollOut()).toStrictEqual({
           "_2": {
             "message": "second",
             "parent": null,
@@ -946,7 +1017,7 @@ const b = `
         ],
         "head": "_4"
       });
-      expect(git.logAccumulatedFiles()).toStrictEqual({
+      expect(git.rollOut()).toStrictEqual({
         "_1": {
           "message": "better message",
           "parent": null,
@@ -1011,7 +1082,7 @@ const b = `
         git.checkout('_2'); git.del('a');
         git.amend();
 
-        expect(git.logAccumulatedFiles()).toStrictEqual({
+        expect(git.rollOut()).toStrictEqual({
           "_1": {
             "message": "first",
             "parent": null,
