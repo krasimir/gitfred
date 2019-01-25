@@ -46,6 +46,7 @@
 
       Object.keys(all).forEach(function process(hash) {
         if (map[hash]) return map[hash];
+        if (!all[hash]) return '';
         if (all[hash].parent === null) {
           map[hash] = all[hash].files;
         } else {
@@ -359,7 +360,7 @@
         result[hash].message = all[hash].message;
         result[hash].parent = all[hash].parent;
         all[hash].meta ? result[hash].meta = all[hash].meta : null;
-        result[hash].files = toObj(accumulated[hash]);
+        result[hash].files = accumulated[hash] ? toObj(accumulated[hash]) : '';
         return result;
       }, {});
     }

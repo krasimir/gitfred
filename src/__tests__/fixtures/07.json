@@ -1,0 +1,73 @@
+{
+  "working": [
+    [
+      "app.js",
+      {
+        "c": "import 'styles.css';\nimport 'markup.html';\n\n",
+        "en": true
+      }
+    ],
+    [
+      "styles.css",
+      {
+        "c": "h1 {\n  color: red;\n  font-family: Helvetica;\n}"
+      }
+    ],
+    [
+      "markup.html",
+      {
+        "c": "<h1>Hello world</h1>"
+      }
+    ]
+  ],
+  "head": "_14",
+  "i": 14,
+  "stage": [],
+  "commits": {
+    "_4": {
+      "message": "second commit ",
+      "parent": "_3",
+      "files": "@@ -91,16 +91,127 @@\n it\\\");\\n\n+\\nconsole.log(\\\"second commit\\\")\\n\\nconst body = document.querySelector(\\\"body\\\")\\n\\nbody.innerHTML = \\\"cliar\\\"\n \",\"en\":t\n",
+      "meta": null
+    },
+    "_5": {
+      "message": "",
+      "parent": "_4",
+      "files": ""
+    },
+    "_10": {
+      "message": "{inject:all}first commit ",
+      "parent": null,
+      "files": "[[\"app.js\",{\"c\":\"import 'styles.css';\\nimport 'markup.html';\\n\\n\",\"en\":true}],[\"styles.css\",{\"c\":\"h1 {\\n  color: red;\\n  font-family: Helvetica;\\n}\"}],[\"markup.html\",{\"c\":\"<h1>Hello world</h1>\"}]]",
+      "meta": {
+        "position": "1"
+      }
+    },
+    "_11": {
+      "message": "{inject:app.js}second commit",
+      "parent": "_10",
+      "files": "@@ -57,16 +57,51 @@\n ml';\\n\\n\n+\\n\\nconsole.log(\\\"second commit \\\")\n \",\"en\":t\n",
+      "meta": {
+        "position": "1"
+      }
+    },
+    "_12": {
+      "message": "",
+      "parent": "_11",
+      "files": ""
+    },
+    "_13": {
+      "message": "{inject:markup.html}therd commit",
+      "parent": "_11",
+      "files": "@@ -89,16 +89,52 @@\n  commit \n+\\\")\\n\\n\\nconsole.log(\\\"therd commit \n \\\")\",\"en\n",
+      "meta": {
+        "position": "2"
+      }
+    },
+    "_14": {
+      "message": "",
+      "parent": "_10",
+      "files": ""
+    }
+  }
+}

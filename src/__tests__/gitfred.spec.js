@@ -1243,6 +1243,31 @@ const b = `
         }
       });
     });
+    it('should work #7', () => {
+      git.import(require('./fixtures/07.json'));
+
+      expect(git.show().files).toStrictEqual([
+        [
+          "app.js",
+          {
+            "c": "import 'styles.css';\nimport 'markup.html';\n\n",
+            "en": true
+          }
+        ],
+        [
+          "styles.css",
+          {
+            "c": "h1 {\n  color: red;\n  font-family: Helvetica;\n}"
+          }
+        ],
+        [
+          "markup.html",
+          {
+            "c": "<h1>Hello world</h1>"
+          }
+        ]
+      ]);
+    });
   });
   
 });

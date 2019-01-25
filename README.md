@@ -35,7 +35,7 @@ I've made the library as part of my work on [poet.codes](https://poet.codes/) wh
   - [`head():<string>`](#headstring)
   - [`log():<object>`](#logobject)
   - [`logAsTree():<object>`](#logastreeobject)
-  - [`rolOut():<object>`](#roloutobject)
+  - [`rollOut():<object>`](#rolloutobject)
   - [`export():<object>`](#exportobject)
   - [`import(data:<object>):<object>`](#importdataobjectobject)
   - [`listen(callback:<function>):<nothing>`](#listencallbackfunctionnothing)
@@ -416,7 +416,7 @@ Get all the commits.
 | ------------- |:-------------:| -----|
 | returns       | `<object>`    | It returns all the commits in a tree of objects. |
 
-### `rolOut():<object>`
+### `rollOut():<object>`
 
 Get all the commits but with actual file content. `.log` and `.logAsTree` deliver the files as patches.
 
