@@ -9,6 +9,8 @@ I've made the library as part of my work on [poet.codes](https://poet.codes/) wh
 * [Demo](https://poet.codes/e/ZLXBJMGKxiP)
 * [Implement Git in JavaScript](https://poet.codes/s/o7Nw8WK93sg/implementing-git-in-javascript)
 
+---
+
 - [Installation](#installation)
 - [Usage](#usage)
 - [API](#api)
