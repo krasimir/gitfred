@@ -1,0 +1,20 @@
+{
+  "_2": {
+    "message": "",
+    "parent": "_5",
+    "files": ""
+  },
+  "_3": {
+    "message": "",
+    "parent": "_2",
+    "files": "@@ -122,11 +122,12 @@\n en\":\n-tru\n+fals\n e}],\n@@ -170,16 +170,27 @@\n ></pre>\"\n+,\"en\":false\n }],[\"out\n@@ -430,11 +430,22 @@\n int,\\n}\"\n+,\"en\":false\n }]]\n"
+  },
+  "_5": {
+    "message": "## Initial commit\n\n{inject:app.js}\n\nI'll probs change some...",
+    "parent": null,
+    "files": "[[\"app.js\",{\"c\":\"import 'markup.html';\\nimport { print, clear } from 'out.js';\\n/* ================================= */\\n\\n\\nprint('Initial commit');\",\"en\":true}],[\"markup.html\",{\"c\":\"<pre id=\\\"out\\\"></pre>\"}],[\"out.js\",{\"c\":\"const out = document.getElementById('out');\\n\\nexport function clear() {\\n  out.textContent = '';\\n}\\n\\nexport function print(val) {\\n  out.textContent += '\\\\n' + JSON.stringify(val, null, 2);\\n}\\n\\nexport default {\\n  clear,\\n  print,\\n}\"}]]",
+    "meta": {
+      "position": "1"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 global.diff_match_patch = require('../vendor/diff-match-patch');
 
 const gitfred = require('../gitfred');
+const fs = require('fs');
 
 const isEmpty = obj => Object.keys(obj).length === 0 && obj.constructor === Object;
 const perf = {
@@ -16,6 +17,10 @@ const perf = {
 }
 
 let git;
+
+function createCommit(content, message) {
+  return (git.save('a', { c: content }), git.add(), git.commit(message));
+}
 
 describe('Given the gitfred library', () => {
   beforeEach(() => {
@@ -505,8 +510,8 @@ const b = `
         expect(git.log()).toStrictEqual({});
       });
     });
-    describe('and there is only one commit and we delete it', () => {
-      it('leave the data with no commits', () => {
+    describe('and there are many commits and we delete them all', () => {
+      it('should leave the data with no commits', () => {
         const hash1 = (git.save('a', { c: 'a' }), git.add(), git.commit('first'));
         const hash2 = (git.save('a', { c: 'b' }), git.add(), git.commit('second'));
         const hash3 = (git.save('a', { c: 'c' }), git.add(), git.commit('third'));
@@ -751,6 +756,35 @@ const b = `
 
           expect(git.head()).toEqual(hash2);
           expect(git.get('a').c).toEqual('hello winter');
+        });
+      });
+    });
+    describe('and we run more tests', () => {
+      it('should leave the commits tree in a proper shape', () => {
+        createCommit('AAA', 'first');
+        createCommit('BBB', 'second');
+        createCommit('CCC', 'third');
+        git.checkout('_1');
+        createCommit('DDD', 'fourth');
+
+        git.adios('_1');
+
+        expect(git.log()).toStrictEqual({
+          "_2": {
+            "message": "second",
+            "parent": null,
+            "files": "[[\"a\",{\"c\":\"BBB\"}]]"
+          },
+          "_3": {
+            "message": "third",
+            "parent": "_2",
+            "files": "@@ -9,11 +9,11 @@\n c\":\"\n-BBB\n+CCC\n \"}]]\n"
+          },
+          "_4": {
+            "message": "fourth",
+            "parent": "_2",
+            "files": "@@ -9,11 +9,11 @@\n c\":\"\n-BBB\n+DDD\n \"}]]\n"
+          }
         });
       });
     });
@@ -1267,6 +1301,17 @@ const b = `
           }
         ]
       ]);
+    });
+    it('should work #8', () => {
+      git.import(require('./fixtures/08.json'));
+      git.checkout('_2');
+      // fs.writeFileSync('a.json', JSON.stringify(git.rollOut(), null, 2).toString('utf8'));
+      expect(git.rollOut()).toStrictEqual(require(__dirname + '/fixtures/08.expect.json'));
+    });
+    it('should work #8 (repairing on import)', () => {
+      git.import(require('./fixtures/08.json'));
+      // fs.writeFileSync('b.json', JSON.stringify(git.log(), null, 2).toString('utf8'));
+      expect(git.log()).toStrictEqual(require('./fixtures/08.expect2.json'));
     });
   });
   

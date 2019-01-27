@@ -1,0 +1,82 @@
+{
+  "_2": {
+    "message": "",
+    "parent": "_5",
+    "files": [
+      [
+        "app.js",
+        {
+          "c": "import 'markup.html';\nimport { print, clear } from 'out.js';\n/* ================================= */\n\n\nprint('Initial commit');",
+          "en": true
+        }
+      ],
+      [
+        "markup.html",
+        {
+          "c": "<pre id=\"out\"></pre>"
+        }
+      ],
+      [
+        "out.js",
+        {
+          "c": "const out = document.getElementById('out');\n\nexport function clear() {\n  out.textContent = '';\n}\n\nexport function print(val) {\n  out.textContent += '\\n' + JSON.stringify(val, null, 2);\n}\n\nexport default {\n  clear,\n  print,\n}"
+        }
+      ]
+    ]
+  },
+  "_3": {
+    "message": "",
+    "parent": "_2",
+    "files": [
+      [
+        "app.js",
+        {
+          "c": "import 'markup.html';\nimport { print, clear } from 'out.js';\n/* ================================= */\n\n\nprint('Initial commit');",
+          "en": false
+        }
+      ],
+      [
+        "markup.html",
+        {
+          "c": "<pre id=\"out\"></pre>",
+          "en": false
+        }
+      ],
+      [
+        "out.js",
+        {
+          "c": "const out = document.getElementById('out');\n\nexport function clear() {\n  out.textContent = '';\n}\n\nexport function print(val) {\n  out.textContent += '\\n' + JSON.stringify(val, null, 2);\n}\n\nexport default {\n  clear,\n  print,\n}",
+          "en": false
+        }
+      ]
+    ]
+  },
+  "_5": {
+    "message": "## Initial commit\n\n{inject:app.js}\n\nI'll probs change some...",
+    "parent": null,
+    "meta": {
+      "position": "1"
+    },
+    "files": [
+      [
+        "app.js",
+        {
+          "c": "import 'markup.html';\nimport { print, clear } from 'out.js';\n/* ================================= */\n\n\nprint('Initial commit');",
+          "en": true
+        }
+      ],
+      [
+        "markup.html",
+        {
+          "c": "<pre id=\"out\"></pre>"
+        }
+      ],
+      [
+        "out.js",
+        {
+          "c": "const out = document.getElementById('out');\n\nexport function clear() {\n  out.textContent = '';\n}\n\nexport function print(val) {\n  out.textContent += '\\n' + JSON.stringify(val, null, 2);\n}\n\nexport default {\n  clear,\n  print,\n}"
+        }
+      ]
+    ]
+  }
+}

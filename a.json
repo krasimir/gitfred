@@ -1,4 +1,0 @@
-{
-  "text": "@@ -1,12 +1,12 @@\n %0A  \n-h\n+H\n ello wor\n@@ -7,16 +7,59 @@\n lo world\n+, and this is a text%0A  on multiple%0A  lines.\n %0A  third\n@@ -63,9 +63,8 @@\n ird line\n-%0A\n",
-  "html": "<span><br />  </span><del>h</del><ins>H</ins><span>ello wor</span><br /><span>lo world</span><ins>, and this is a text<br />  on multiple<br />  lines.</ins><span><br />  third</span><br /><span>ird line</span><del><br /></del>"
-}

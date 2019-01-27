@@ -40,17 +40,38 @@
 
       return dmp.patch_apply(dmp.patch_fromText(patch), source).shift();
     }
+    const getRootCommitHash = () => {
+      const all = api.log();
+      const hashes = Object.keys(all);
+      let rootHash = hashes.find(hash => all[hash].parent === null && all[hash].files.match(/^\[/));
+      if (!rootHash) rootHash = hashes.shift();
+      return rootHash;
+    }
+    const getRootCommit = () => {
+      const all = api.log();
+      const rootHash = getRootCommitHash();
+
+      if (rootHash) {
+        return all[rootHash];
+      }
+      return null;
+    }
     const accumulateAll = () => {
       const all = api.log();
       const map = {};
+      const root = getRootCommit();
 
       Object.keys(all).forEach(function process(hash) {
         if (map[hash]) return map[hash];
-        if (!all[hash]) return '';
+        if (!all[hash]) return map[hash] = root.files;
         if (all[hash].parent === null) {
           map[hash] = all[hash].files;
         } else {
-          map[hash] = applyPatch(process(all[hash].parent), all[hash].files);
+          const source = process(all[hash].parent);
+          if (typeof source === undefined) {
+            source = root.files;
+          }
+          return map[hash] = applyPatch(source, all[hash].files);
         }
       });
 
@@ -158,16 +179,22 @@
         return result;
       }, '');
     }
-    const ensureProperParents = () => {
+    const repair = () => {
       const all = git.commits;
-      const root = Object.keys(git.commits).find(hash => (all[hash].parent === null && all[hash].files.match(/^\[/)));
+      const hashes = Object.keys(all);
+      const rootHash = getRootCommitHash();
 
-      if (root) {
-        Object.keys(git.commits).forEach(hash => {
-          if (all[hash].parent === null && hash !== root) {
-            all[hash].parent = root;
+      if (rootHash) {
+        hashes.forEach(hash => {
+          const commit = all[hash];
+
+          if (commit.parent === null && hash !== rootHash) {
+            commit.parent = rootHash;
           }
-        })
+          if (commit.parent !== null && typeof all[commit.parent] === 'undefined') {
+            commit.parent = rootHash;
+          }
+        });
       }
     }
     const calculateFilesDiff = (a, b) => {
@@ -415,6 +442,7 @@
       
       git.commits = all;
       notify(api.ON_COMMIT);
+      repair();
       return toBeDeleted;
     }
     api.diff = function () {
@@ -444,7 +472,7 @@
       if (!git.commits) git.commits = {};
       working.replaceStorage(git.working);
       stage.replaceStorage(git.stage);
-      ensureProperParents();
+      repair();
       return api;
     }
     api.commitDiffToHTML = function (hash) {
