@@ -1,2 +1,4 @@
 *.png
 src
+.vscode
+yarn.lock
