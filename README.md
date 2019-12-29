@@ -4,10 +4,10 @@
 
 > In-memory git-like library for managing textual content.
 
-I've made the library as part of my work on [poet.codes](https://poet.codes/) where I need to store multiple files and their different versions. Storing all the content every time simply doesn't scale so I needed a smarter approach. Something like Git but running in the browser. It needed to be lightweight and to provide similar diff/patch experience. That's what Gitfred is.
+I've made the library as part of my work on [poet.codes](http://poet.krasimir.now.sh/) where I need to store multiple files and their different versions. Storing all the content every time simply doesn't scale so I needed a smarter approach. Something like Git but running in the browser. It needed to be lightweight and to provide similar diff/patch experience. That's what Gitfred is.
 
-* [Demo](https://poet.codes/e/ZLXBJMGKxiP)
-* [Implement Git in JavaScript](https://poet.codes/s/o7Nw8WK93sg/implementing-git-in-javascript)
+* [Demo](http://poet.krasimir.now.sh/e/ZLXBJMGKxiP)
+* [Implement Git in JavaScript](http://poet.krasimir.now.sh/s/o7Nw8WK93sg/implementing-git-in-javascript)
 
 ---
 
